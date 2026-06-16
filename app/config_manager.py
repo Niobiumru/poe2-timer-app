@@ -6,6 +6,7 @@ DEFAULT_CONFIG = {
     "tracked_areas": ["MapIceCave", "MapDesert", "MapForest"],
     "reentry_timer_duration": 60,  # seconds
     "area_timer_limit": 300,       # seconds (for gradient)
+    "maps_completed": 0,           # Counter
     "sound_file": "",
     "ui_settings": {}
 }

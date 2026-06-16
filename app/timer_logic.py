@@ -4,6 +4,8 @@ class TimerLogic(QObject):
     reentry_tick = Signal(int)  # remaining seconds
     reentry_finished = Signal()
     area_tick = Signal(int)     # elapsed seconds
+    map_completed = Signal()    # New map instance detected
+    log_message = Signal(str, str, str) # Level, Source, Message
     
     def __init__(self):
         super().__init__()
@@ -53,34 +55,36 @@ class TimerLogic(QObject):
     def handle_event(self, event, tracked_areas, reentry_duration):
         if event["type"] == "instance":
             self.pending_instance_id = event["value"]
+            self.log_message.emit("INFO", "Parser", f"Client-Safe Instance ID = {event['value']}")
             
         elif event["type"] == "area":
             area_name = event["value"]
+            self.log_message.emit("INFO", "Parser", f"Generating level area \"{area_name}\"")
+            
             if area_name in tracked_areas:
-                # Always start/reset reentry timer when entering a tracked area
+                self.log_message.emit("INFO", "Timer", f"Re-entry timer started for {area_name} ({reentry_duration} seconds)")
                 self.start_reentry(reentry_duration)
                 
-                # Check if it's a NEW instance to reset area timer
                 if self.pending_instance_id and self.pending_instance_id != self.last_instance_id:
                     self.last_instance_id = self.pending_instance_id
+                    self.log_message.emit("INFO", "Timer", "New map instance detected. Resetting global timer.")
                     self.reset_area_timer()
+                    self.map_completed.emit()
                 elif self.pending_instance_id == self.last_instance_id:
-                    # Returning to the SAME instance, resume without reset
+                    self.log_message.emit("INFO", "Timer", "Returning to same instance. Resuming global timer.")
                     self.resume_area_timer()
                 elif not self.last_instance_id and self.pending_instance_id:
-                    # Initial case
                     self.last_instance_id = self.pending_instance_id
+                    self.log_message.emit("INFO", "Timer", "Initial map instance. Starting global timer.")
                     self.reset_area_timer()
+                    self.map_completed.emit()
             else:
-                # Entering non-tracked area (Hideout, Town, etc.)
+                self.log_message.emit("INFO", "Timer", f"Entered non-tracked area \"{area_name}\". Pausing timers.")
                 self._reentry_timer.stop()
                 self._reentry_remaining = 0
                 self.reentry_tick.emit(0)
-                
-                # Pause global area timer
                 self.pause_area_timer()
             
-            # Clear pending after processing area
             self.pending_instance_id = None
 
     def stop_all(self):
