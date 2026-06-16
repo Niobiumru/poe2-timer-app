@@ -7,6 +7,9 @@ DEFAULT_CONFIG = {
     "reentry_timer_duration": 60,  # seconds
     "area_timer_limit": 300,       # seconds (for gradient)
     "maps_completed": 0,           # Counter
+    "auto_start": False,           # New option
+    "mini_mode": False,            # New option
+    "mini_scale": 1.0,             # New scale option (1.0, 0.5, 0.25)
     "sound_file": "",
     "ui_settings": {}
 }
