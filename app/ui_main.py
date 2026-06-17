@@ -88,6 +88,9 @@ class MainWindow(QMainWindow):
         self.is_debug = bool(args and "-debug" in args)
         self.is_mini = False
         self.current_reentry_color = "#00bfa5"
+        self.base_reentry_color = "#00bfa5"
+        self.is_blink_hidden = False
+        self.blink_timer = QTimer(self)
         self.config = ConfigManager()
         self.timer_logic = TimerLogic()
         self.sound_manager = SoundManager()
@@ -548,12 +551,56 @@ class MainWindow(QMainWindow):
         self.reentry_display.setText(f"{m:02}:{s:02}")
         total = self.reentry_spin.value()
         ratio = seconds / total if total > 0 else 0
-        if ratio > 0.5:
-            r, g, b = int(255 * (1 - (ratio - 0.5) * 2)), 191, 165
-        else:
-            r, g, b = 191, int(191 * (ratio * 2)), 165
-        self.current_reentry_color = f"rgb({r}, {g}, {b})"
         
+        # Color gradient: White -> Green -> Yellow -> Red
+        white = (255, 255, 255)
+        green = (0, 191, 165)
+        yellow = (255, 235, 59)
+        red = (207, 102, 121)
+
+        def interpolate(c1, c2, factor):
+            return (
+                int(c1[0] + (c2[0] - c1[0]) * factor),
+                int(c1[1] + (c2[1] - c1[1]) * factor),
+                int(c1[2] + (c2[2] - c1[2]) * factor)
+            )
+
+        if ratio >= 0.66:
+            f = (ratio - 0.66) / 0.34
+            r, g, b = interpolate(green, white, f)
+        elif ratio >= 0.33:
+            f = (ratio - 0.33) / 0.33
+            r, g, b = interpolate(yellow, green, f)
+        else:
+            f = ratio / 0.33
+            r, g, b = interpolate(red, yellow, f)
+            
+        self.base_reentry_color = f"rgb({r}, {g}, {b})"
+        
+        # Blink logic for last 30 seconds
+        if seconds <= 30 and seconds > 0:
+            if not self.blink_timer.isActive():
+                self.is_blink_hidden = False
+                self.blink_timer.start(500)
+        else:
+            if self.blink_timer.isActive():
+                self.blink_timer.stop()
+                self.is_blink_hidden = False
+                
+        self._apply_reentry_color()
+
+    def _on_blink_timeout(self):
+        self.is_blink_hidden = not self.is_blink_hidden
+        self._apply_reentry_color()
+
+    def _apply_reentry_color(self):
+        if self.is_blink_hidden:
+            # Semi-transparent text to create a beautiful blink
+            base = self.base_reentry_color
+            self.current_reentry_color = base.replace("rgb", "rgba").replace(")", ", 0.2)")
+        else:
+            self.current_reentry_color = self.base_reentry_color
+            
         scale_map = {"Large": 1.0, "Medium": 0.8, "Small": 0.65}
         scale = scale_map.get(self.scale_combo.currentText(), 1.0) if self.is_mini else 1.0
         self._refresh_displays_style(scale)
