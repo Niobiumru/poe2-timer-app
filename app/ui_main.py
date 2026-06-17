@@ -13,6 +13,8 @@ from .log_watcher import LogWatcher
 from .parser_logic import LogParser
 from .timer_logic import TimerLogic
 from .sound_manager import SoundManager
+from .version import VERSION
+from .updater import UpdateManager
 
 DARK_THEME = """
 QMainWindow { background-color: #0b0f12; }
@@ -24,6 +26,7 @@ QPushButton { background-color: #1a2228; border: 1px solid #00bfa5; border-radiu
 QPushButton:hover { background-color: #2c3e50; }
 QPushButton#startBtn { background-color: #00bfa5; color: #0b0f12; }
 QPushButton#stopBtn { background-color: #cf6679; color: #0b0f12; border-color: #cf6679; }
+QPushButton#updateBtn { background-color: #ff9800; color: #0b0f12; border: none; font-size: 10px; padding: 2px 10px; }
 QPushButton#miniBtn { 
     background-color: #12181d; 
     border: 1px solid #00bfa544; 
@@ -91,9 +94,11 @@ class MainWindow(QMainWindow):
         self.base_reentry_color = "#00bfa5"
         self.is_blink_hidden = False
         self.blink_timer = QTimer(self)
+        self.blink_timer.timeout.connect(self._on_blink_timeout)
         self.config = ConfigManager()
         self.timer_logic = TimerLogic()
         self.sound_manager = SoundManager()
+        self.update_manager = UpdateManager()
         self.thread_pool = QThreadPool()
         self.log_watcher = None
         
@@ -107,6 +112,9 @@ class MainWindow(QMainWindow):
         
         if self.auto_start_check.isChecked():
             QTimer.singleShot(1000, self._on_start)
+            
+        # Check for updates in background
+        QTimer.singleShot(2000, self._check_updates_async)
 
     def _setup_ui(self):
         central = QWidget()
@@ -294,9 +302,14 @@ class MainWindow(QMainWindow):
         sb_l = QHBoxLayout(self.status_bar_widget)
         sb_l.setContentsMargins(0, 0, 0, 0)
         self.status_text = QLabel("System Ready")
+        self.update_btn = QPushButton(f"v{VERSION} - Up to date")
+        self.update_btn.setObjectName("updateBtn")
+        self.update_btn.setCursor(Qt.PointingHandCursor)
+        self.update_btn.setVisible(True) # Visible by default, shows current version
         self.last_update_text = QLabel("-")
         sb_l.addWidget(self.status_text)
         sb_l.addStretch()
+        sb_l.addWidget(self.update_btn)
         sb_l.addWidget(self.last_update_text)
         self.main_layout.addWidget(self.status_bar_widget)
 
@@ -309,6 +322,7 @@ class MainWindow(QMainWindow):
         self.stop_btn.clicked.connect(self._on_stop)
         self.reset_btn.clicked.connect(self._on_reset_counter)
         self.exit_btn.clicked.connect(self.close)
+        self.update_btn.clicked.connect(self._on_update_clicked)
         
         self.btn_s.clicked.connect(lambda: self._apply_quick_scale("Small"))
         self.btn_m.clicked.connect(lambda: self._apply_quick_scale("Medium"))
@@ -324,101 +338,35 @@ class MainWindow(QMainWindow):
         self.timer_logic.map_completed.connect(self._on_map_completed)
         self.timer_logic.log_message.connect(self._add_log_entry)
 
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton and self.is_mini:
-            self.drag_pos = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
-            event.accept()
+    def _check_updates_async(self):
+        from PySide6.QtCore import QRunnable, QObject, Signal
+        class WorkerSignals(QObject):
+            finished = Signal(bool)
+        class UpdateWorker(QRunnable):
+            def __init__(self, manager):
+                super().__init__()
+                self.manager = manager
+                self.signals = WorkerSignals()
+            def run(self):
+                res = self.manager.check_for_updates()
+                self.signals.finished.emit(res)
+        
+        worker = UpdateWorker(self.update_manager)
+        worker.signals.finished.connect(self._on_update_check_finished)
+        self.thread_pool.start(worker)
 
-    def mouseMoveEvent(self, event):
-        if event.buttons() == Qt.LeftButton and self.is_mini and hasattr(self, 'drag_pos'):
-            self.move(event.globalPosition().toPoint() - self.drag_pos)
-            event.accept()
-
-    def _apply_quick_scale(self, scale_text):
-        idx = self.scale_combo.findText(scale_text)
-        if idx >= 0:
-            self.scale_combo.setCurrentIndex(idx)
-        self._set_mini_state(True)
-
-    def _on_expand_ui(self):
-        self.mini_mode_check.setChecked(False)
-
-    def _on_mini_mode_toggled(self, checked):
-        self.is_mini = checked
-        flags = self.windowFlags()
-        if checked:
-            flags |= Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint
+    def _on_update_check_finished(self, available):
+        if available:
+            self.update_btn.setText(f"NEW UPDATE: v{self.update_manager.latest_version}")
+            self.update_btn.setStyleSheet("background-color: #ff9800; color: #0b0f12; font-weight: bold;")
         else:
-            flags &= ~Qt.WindowStaysOnTopHint
-            flags &= ~Qt.FramelessWindowHint
-        self.setWindowFlags(flags)
-        self._set_mini_state(checked)
-        self.show()
+            self.update_btn.setText(f"v{VERSION} - Latest")
+            self.update_btn.setEnabled(False)
 
-    def _set_mini_state(self, mini):
-        self.top_container.setVisible(not mini)
-        self.left_col_widget.setVisible(not mini)
-        self.sub_stats_widget.setVisible(not mini)
-        self.status_bar_widget.setVisible(not mini)
-        self.mini_controls_widget.setVisible(mini)
-        if self.is_debug:
-            self.log_group.setVisible(not mini)
-            
-        scale_map = {"Large": 1.0, "Medium": 0.8, "Small": 0.65}
-        scale = scale_map.get(self.scale_combo.currentText(), 1.0) if mini else 1.0
-        
-        # In mini mode, we force the frame's internal margins to exactly 2 pixels.
-        # This completely removes math-based guesswork.
-        m_val = 2 if mini else 5
-        self.reentry_card.update_style(m_val)
-        self.map_timer_card.update_style(m_val)
-        self.maps_card.update_style(m_val)
-        
-        self.reentry_card.header_widget.setVisible(not mini)
-        self.map_timer_card.header_widget.setVisible(not mini)
-        self.maps_card.header_widget.setVisible(not mini)
-        
-        # Clear any manual width/height limitations. Qt will wrap the text naturally.
-        self.reentry_card.setMinimumSize(0, 0)
-        self.reentry_card.setMaximumSize(16777215, 16777215)
-        self.map_timer_card.setMinimumSize(0, 0)
-        self.map_timer_card.setMaximumSize(16777215, 16777215)
-        self.maps_card.setMinimumSize(0, 0)
-        self.maps_card.setMaximumSize(16777215, 16777215)
-        
-        self._refresh_displays_style(scale)
-        
-        if mini:
-            if scale < 0.7:
-                self.info_bar.setFixedHeight(30)
-                self.info_bar.header_widget.hide()
-            else:
-                self.info_bar.setFixedHeight(40)
-                self.info_bar.header_widget.hide()
-                
-            # Allow the main window to shrink to exactly fit its tightly packed contents
-            self.setMinimumSize(0, 0)
-            QTimer.singleShot(10, self.adjustSize)
-        else:
-            self.info_bar.setFixedHeight(50)
-            self.info_bar.header_widget.show()
-            self.setMinimumSize(1100, 550)
-            self.resize(1100, 550)
-
-    def _refresh_displays_style(self, scale):
-        # We use negative margins to cut off the empty vertical space around the font.
-        # This allows the frame to wrap tightly around the shape of the numbers.
-        px = int(72 * scale)
-        mt = int(-0.25 * px)
-        mb = int(-0.20 * px)
-        
-        px_small = int(48 * scale)
-        mt_small = int(-0.25 * px_small)
-        mb_small = int(-0.20 * px_small)
-
-        self.reentry_display.setStyleSheet(f"font-size: {px}px; font-weight: bold; color: {self.current_reentry_color}; background: transparent; padding: 0px; margin-top: {mt}px; margin-bottom: {mb}px; line-height: 1;")
-        self.map_timer_display.setStyleSheet(f"font-size: {px}px; font-weight: bold; color: #ff9800; background: transparent; padding: 0px; margin-top: {mt}px; margin-bottom: {mb}px; line-height: 1;")
-        self.maps_inline_label.setStyleSheet(f"font-size: {px_small}px; font-weight: bold; color: #00bfa5; background: transparent; padding: 0px; margin-top: {mt_small}px; margin-bottom: {mb_small}px; line-height: 1;")
+    def _on_update_clicked(self):
+        import webbrowser
+        url = self.update_manager.download_url or f"https://github.com/{self.update_manager.GITHUB_USER}/{self.update_manager.GITHUB_REPO}/releases"
+        webbrowser.open(url)
 
     def _load_settings(self):
         self.game_path_edit.setText(self.config.get("game_path"))
@@ -426,7 +374,13 @@ class MainWindow(QMainWindow):
         for area in self.config.get("tracked_areas", []):
             self.area_list.addItem(area)
         self.reentry_spin.setValue(self.config.get("reentry_timer_duration"))
-        self.sound_edit.setText(self.config.get("sound_file"))
+        
+        # Default sound path logic
+        sound = self.config.get("sound_file")
+        if not sound:
+            sound = os.path.join(os.getcwd(), "assets", "sounds", "notify.mp3")
+        self.sound_edit.setText(sound)
+        
         self._on_map_completed(count=self.config.get("maps_completed", 0))
         self.auto_start_check.setChecked(self.config.get("auto_start", False))
         self.mini_mode_check.setChecked(self.config.get("mini_mode", False))
