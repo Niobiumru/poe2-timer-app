@@ -265,6 +265,17 @@ class MainWindow(QMainWindow):
         self.timer_logic.map_completed.connect(self._on_map_completed)
         self.timer_logic.log_message.connect(self._add_log_entry)
 
+    # --- DRAG SUPPORT FOR FRAMELESS WINDOW ---
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton and self.is_mini:
+            self.drag_pos = event.globalPos() - self.frameGeometry().topLeft()
+            event.accept()
+
+    def mouseMoveEvent(self, event):
+        if event.buttons() == Qt.LeftButton and self.is_mini and hasattr(self, 'drag_pos'):
+            self.move(event.globalPos() - self.drag_pos)
+            event.accept()
+            
     def _apply_quick_scale(self, scale_text):
         idx = self.scale_combo.findText(scale_text)
         if idx >= 0:
