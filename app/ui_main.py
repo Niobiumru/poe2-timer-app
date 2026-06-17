@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                              QLabel, QPushButton, QLineEdit, QListWidget, 
                              QFileDialog, QSpinBox, QMessageBox, QGroupBox,
                              QFrame, QTableWidget, QTableWidgetItem, QHeaderView,
-                             QGridLayout, QCheckBox, QComboBox)
+                             QGridLayout, QCheckBox, QComboBox, QSizePolicy)
 from PySide6.QtCore import Qt, QThreadPool, Slot, QSize, QTimer
 from PySide6.QtGui import QColor, QPalette, QFont, QIcon
 
@@ -26,13 +26,13 @@ QPushButton#startBtn { background-color: #00bfa5; color: #0b0f12; }
 QPushButton#stopBtn { background-color: #cf6679; color: #0b0f12; border-color: #cf6679; }
 QPushButton#miniBtn { 
     background-color: #12181d; 
-    border: 1px solid #00bfa566; 
+    border: 1px solid #00bfa544; 
     color: #00bfa5; 
-    padding: 2px 10px; 
+    padding: 2px 8px; 
     font-size: 11px; 
     font-weight: bold; 
     border-radius: 4px;
-    min-height: 26px;
+    min-height: 22px;
 }
 QPushButton#miniBtn:hover { border: 1px solid #00bfa5; background-color: #1a2228; }
 QTableWidget { background-color: #12181d; gridline-color: #1a2228; border: none; }
@@ -45,6 +45,7 @@ class Card(QFrame):
         self.setObjectName("mainCard")
         self.setFrameShape(QFrame.StyledPanel)
         self.color = color
+        
         self.card_layout = QVBoxLayout(self)
         self.card_layout.setSpacing(0)
         
@@ -65,7 +66,7 @@ class Card(QFrame):
             QFrame#mainCard {{ 
                 background-color: #12181d; 
                 border: 1px solid {self.color}33; 
-                border-radius: 10px; 
+                border-radius: 8px; 
             }}
             QLabel#cardTitle {{ 
                 color: {self.color}; 
@@ -117,73 +118,97 @@ class MainWindow(QMainWindow):
         top_l.setContentsMargins(0, 0, 0, 0)
         f_l = QHBoxLayout()
         f_l.addWidget(QLabel("Game Folder"))
-        self.game_path_edit = QLineEdit(); self.game_path_edit.setReadOnly(True)
+        self.game_path_edit = QLineEdit()
+        self.game_path_edit.setReadOnly(True)
         self.select_path_btn = QPushButton("Browse")
-        f_l.addWidget(self.game_path_edit); f_l.addWidget(self.select_path_btn); top_l.addLayout(f_l)
+        f_l.addWidget(self.game_path_edit)
+        f_l.addWidget(self.select_path_btn)
+        top_l.addLayout(f_l)
         
         l_l = QHBoxLayout()
         l_l.addWidget(QLabel("Client Log"))
-        self.client_log_edit = QLineEdit(); self.client_log_edit.setReadOnly(True)
-        self.monitoring_status = QLabel("● Inactive"); self.monitoring_status.setStyleSheet("color: #cf6679; font-weight: bold;")
-        l_l.addWidget(self.client_log_edit); l_l.addWidget(self.monitoring_status); top_l.addLayout(l_l)
+        self.client_log_edit = QLineEdit()
+        self.client_log_edit.setReadOnly(True)
+        self.monitoring_status = QLabel("● Inactive")
+        self.monitoring_status.setStyleSheet("color: #cf6679; font-weight: bold;")
+        l_l.addWidget(self.client_log_edit)
+        l_l.addWidget(self.monitoring_status)
+        top_l.addLayout(l_l)
         self.main_layout.addWidget(self.top_container)
 
         # --- Dashboard ---
         self.dashboard_widget = QWidget()
         self.dashboard_layout = QHBoxLayout(self.dashboard_widget)
-        self.dashboard_layout.setContentsMargins(0, 0, 0, 0); self.dashboard_layout.setSpacing(8)
+        self.dashboard_layout.setContentsMargins(0, 0, 0, 0)
+        self.dashboard_layout.setSpacing(8)
 
         # Left Column
         self.left_col_widget = QWidget()
-        left_l = QVBoxLayout(self.left_col_widget); left_l.setContentsMargins(0, 0, 0, 0)
+        left_l = QVBoxLayout(self.left_col_widget)
+        left_l.setContentsMargins(0, 0, 0, 0)
         area_group = Card("Tracked Areas")
-        self.area_list = QListWidget(); area_group.card_layout.addWidget(self.area_list)
+        self.area_list = QListWidget()
+        area_group.card_layout.addWidget(self.area_list)
         b_l = QHBoxLayout()
-        self.add_area_btn = QPushButton("+ Add"); self.remove_area_btn = QPushButton("- Remove")
+        self.add_area_btn = QPushButton("+ Add")
+        self.remove_area_btn = QPushButton("- Remove")
         self.remove_area_btn.setStyleSheet("color: #cf6679; border-color: #cf6679;")
-        b_l.addWidget(self.add_area_btn); b_l.addWidget(self.remove_area_btn); area_group.card_layout.addLayout(b_l)
-        left_l.addWidget(area_group); self.dashboard_layout.addWidget(self.left_col_widget, 1)
+        b_l.addWidget(self.add_area_btn)
+        b_l.addWidget(self.remove_area_btn)
+        area_group.card_layout.addLayout(b_l)
+        left_l.addWidget(area_group)
+        self.dashboard_layout.addWidget(self.left_col_widget, 1)
 
         # Right Column
         self.right_col_widget = QWidget()
-        right_l = QVBoxLayout(self.right_col_widget); right_l.setContentsMargins(0, 0, 0, 0); right_l.setSpacing(8)
+        right_l = QVBoxLayout(self.right_col_widget)
+        right_l.setContentsMargins(0, 0, 0, 0)
+        right_l.setSpacing(8)
         
-        timers_row = QHBoxLayout(); timers_row.setSpacing(5)
+        timers_row = QHBoxLayout()
+        timers_row.setSpacing(5)
         
-        # 1. Re-entry Timer
+        # TIMERS WITH FIXED SIZE POLICY (NATIVE WRAPPING)
         self.reentry_card = Card("Re-entry Timer")
+        self.reentry_card.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.reentry_display = QLabel("00:00")
         self.reentry_display.setAlignment(Qt.AlignCenter)
-        self.reentry_display.setStyleSheet("font-size: 56px; font-weight: bold; color: #00bfa5; background: transparent; padding: 0;")
-        self.reentry_card.card_layout.addWidget(self.reentry_display)
+        self.reentry_display.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.reentry_display.setStyleSheet("font-size: 56px; font-weight: bold; color: #00bfa5; background: transparent; padding: 0; margin: 0; line-height: 1;")
+        self.reentry_card.card_layout.addWidget(self.reentry_display, 0, Qt.AlignCenter)
         
-        # 2. Map Timer
-        self.map_timer_card = Card("Map Timer"); self.map_timer_card.color = "#ff9800"; self.map_timer_card.update_style(5)
+        self.map_timer_card = Card("Map Timer")
+        self.map_timer_card.color = "#ff9800"
+        self.map_timer_card.update_style(5)
+        self.map_timer_card.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.map_timer_display = QLabel("00:00")
         self.map_timer_display.setAlignment(Qt.AlignCenter)
-        self.map_timer_display.setStyleSheet("font-size: 56px; font-weight: bold; color: #ff9800; background: transparent; padding: 0;")
-        self.map_timer_card.card_layout.addWidget(self.map_timer_display)
+        self.map_timer_display.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.map_timer_display.setStyleSheet("font-size: 56px; font-weight: bold; color: #ff9800; background: transparent; padding: 0; margin: 0; line-height: 1;")
+        self.map_timer_card.card_layout.addWidget(self.map_timer_display, 0, Qt.AlignCenter)
         
-        # 3. Maps Counter
         self.maps_card = Card("Maps")
-        self.maps_card.setFixedWidth(80)
+        self.maps_card.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.maps_inline_label.setAlignment(Qt.AlignCenter)
-        self.maps_inline_label.setStyleSheet("font-size: 38px; font-weight: bold; color: #00bfa5; background: transparent; padding: 0;")
-        self.maps_card.card_layout.addWidget(self.maps_inline_label)
+        self.maps_inline_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.maps_inline_label.setStyleSheet("font-size: 38px; font-weight: bold; color: #00bfa5; background: transparent; padding: 0; margin: 0; line-height: 1;")
+        self.maps_card.card_layout.addWidget(self.maps_inline_label, 0, Qt.AlignCenter)
         
-        timers_row.addWidget(self.reentry_card, 2)
-        timers_row.addWidget(self.map_timer_card, 2)
-        timers_row.addWidget(self.maps_card, 1)
+        # Add to row with alignment to prevent any expansion
+        timers_row.addWidget(self.reentry_card, 0, Qt.AlignLeft | Qt.AlignTop)
+        timers_row.addWidget(self.map_timer_card, 0, Qt.AlignLeft | Qt.AlignTop)
+        timers_row.addWidget(self.maps_card, 0, Qt.AlignLeft | Qt.AlignTop)
+        timers_row.addStretch()
         right_l.addLayout(timers_row)
 
         # Session Stats Bar
         self.info_bar = Card("Session Stats")
-        self.info_bar.setFixedHeight(55)
+        self.info_bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.info_bar.setFixedHeight(50)
         info_l = QHBoxLayout()
         info_l.setContentsMargins(10, 0, 10, 0)
         info_l.setSpacing(15)
         
-        # Removed "Area:" label. Only the dynamic value remains.
         self.last_area_val = QLabel("No Area")
         self.last_area_val.setStyleSheet("color: #00bfa5; font-weight: bold; font-size: 11px; background: transparent; border: none;")
         info_l.addWidget(self.last_area_val)
@@ -193,7 +218,7 @@ class MainWindow(QMainWindow):
         self.mini_controls_widget.setStyleSheet("background: transparent; border: none;")
         mc_l = QHBoxLayout(self.mini_controls_widget)
         mc_l.setContentsMargins(0, 0, 0, 0)
-        mc_l.setSpacing(0)
+        mc_l.setSpacing(0) 
         
         self.btn_s = QPushButton("S"); self.btn_s.setObjectName("miniBtn")
         self.btn_m = QPushButton("M"); self.btn_m.setObjectName("miniBtn")
@@ -211,28 +236,49 @@ class MainWindow(QMainWindow):
         right_l.addWidget(self.info_bar)
 
         # Settings
-        self.sub_stats_widget = QWidget(); sub_l = QHBoxLayout(self.sub_stats_widget); sub_l.setContentsMargins(0, 0, 0, 0)
-        s_card = Card("Settings"); s_f = QGridLayout(); s_f.addWidget(QLabel("Re-entry (s)"), 0, 0)
-        self.reentry_spin = QSpinBox(); self.reentry_spin.setRange(1, 3600); s_f.addWidget(self.reentry_spin, 0, 1)
-        self.sound_edit = QLineEdit(); self.sound_browse = QPushButton("...")
-        s_f.addWidget(QLabel("Sound Path"), 1, 0); s_f.addWidget(self.sound_edit, 1, 1); s_f.addWidget(self.sound_browse, 1, 2)
-        self.auto_start_check = QCheckBox("Auto-start"); self.mini_mode_check = QCheckBox("Mini Mode")
-        s_f.addWidget(self.auto_start_check, 2, 0); s_f.addWidget(self.mini_mode_check, 2, 1)
-        self.scale_combo = QComboBox(); self.scale_combo.addItems(["Large", "Medium", "Small"])
-        s_f.addWidget(QLabel("Mini Size"), 3, 0); s_f.addWidget(self.scale_combo, 3, 1); s_card.card_layout.addLayout(s_f)
+        self.sub_stats_widget = QWidget()
+        sub_l = QHBoxLayout(self.sub_stats_widget)
+        sub_l.setContentsMargins(0, 0, 0, 0)
+        s_card = Card("Settings")
+        s_f = QGridLayout()
+        s_f.addWidget(QLabel("Re-entry (s)"), 0, 0)
+        self.reentry_spin = QSpinBox()
+        self.reentry_spin.setRange(1, 3600)
+        s_f.addWidget(self.reentry_spin, 0, 1)
+        self.sound_edit = QLineEdit()
+        self.sound_browse = QPushButton("...")
+        s_f.addWidget(QLabel("Sound Path"), 1, 0)
+        s_f.addWidget(self.sound_edit, 1, 1)
+        s_f.addWidget(self.sound_browse, 1, 2)
+        self.auto_start_check = QCheckBox("Auto-start")
+        self.mini_mode_check = QCheckBox("Mini Mode")
+        s_f.addWidget(self.auto_start_check, 2, 0)
+        s_f.addWidget(self.mini_mode_check, 2, 1)
+        self.scale_combo = QComboBox()
+        self.scale_combo.addItems(["Large", "Medium", "Small"])
+        s_f.addWidget(QLabel("Mini Size"), 3, 0)
+        s_f.addWidget(self.scale_combo, 3, 1)
+        s_card.card_layout.addLayout(s_f)
         
         ctrl = QVBoxLayout()
         self.start_btn = QPushButton("START MONITORING"); self.start_btn.setObjectName("startBtn")
         self.stop_btn = QPushButton("STOP MONITORING"); self.stop_btn.setObjectName("stopBtn"); self.stop_btn.setEnabled(False)
-        self.reset_btn = QPushButton("Reset Total Count"); self.exit_btn = QPushButton("EXIT APPLICATION"); self.exit_btn.setStyleSheet("color: #cf6679; border-color: #cf6679;")
-        ctrl.addWidget(self.start_btn); ctrl.addWidget(self.stop_btn); ctrl.addWidget(self.reset_btn); ctrl.addWidget(self.exit_btn)
-        sub_l.addWidget(s_card, 2); sub_l.addLayout(ctrl, 1)
+        self.reset_btn = QPushButton("Reset Total Count")
+        self.exit_btn = QPushButton("EXIT APPLICATION"); self.exit_btn.setStyleSheet("color: #cf6679; border-color: #cf6679;")
+        
+        ctrl.addWidget(self.start_btn)
+        ctrl.addWidget(self.stop_btn)
+        ctrl.addWidget(self.reset_btn)
+        ctrl.addWidget(self.exit_btn)
+        sub_l.addWidget(s_card, 2)
+        sub_l.addLayout(ctrl, 1)
         right_l.addWidget(self.sub_stats_widget)
         
         self.dashboard_layout.addWidget(self.right_col_widget, 2)
         self.main_layout.addWidget(self.dashboard_widget)
 
-        self.log_group = Card("Event Log"); self.log_table = QTableWidget(0, 4)
+        self.log_group = Card("Event Log")
+        self.log_table = QTableWidget(0, 4)
         self.log_table.setHorizontalHeaderLabels(["Time", "Level", "Source", "Message"])
         self.log_table.horizontalHeader().setStretchLastSection(True)
         self.log_table.verticalHeader().setVisible(False)
@@ -241,15 +287,25 @@ class MainWindow(QMainWindow):
         if not self.is_debug:
             self.log_group.hide()
 
-        self.status_bar_widget = QWidget(); sb_l = QHBoxLayout(self.status_bar_widget); sb_l.setContentsMargins(0, 0, 0, 0)
-        self.status_text = QLabel("System Ready"); self.last_update_text = QLabel("-")
-        sb_l.addWidget(self.status_text); sb_l.addStretch(); sb_l.addWidget(self.last_update_text); self.main_layout.addWidget(self.status_bar_widget)
+        self.status_bar_widget = QWidget()
+        sb_l = QHBoxLayout(self.status_bar_widget)
+        sb_l.setContentsMargins(0, 0, 0, 0)
+        self.status_text = QLabel("System Ready")
+        self.last_update_text = QLabel("-")
+        sb_l.addWidget(self.status_text)
+        sb_l.addStretch()
+        sb_l.addWidget(self.last_update_text)
+        self.main_layout.addWidget(self.status_bar_widget)
 
     def _connect_signals(self):
-        self.select_path_btn.clicked.connect(self._on_select_path); self.sound_browse.clicked.connect(self._on_select_sound)
-        self.add_area_btn.clicked.connect(self._on_add_area); self.remove_area_btn.clicked.connect(self._on_remove_area)
-        self.start_btn.clicked.connect(self._on_start); self.stop_btn.clicked.connect(self._on_stop)
-        self.reset_btn.clicked.connect(self._on_reset_counter); self.exit_btn.clicked.connect(self.close)
+        self.select_path_btn.clicked.connect(self._on_select_path)
+        self.sound_browse.clicked.connect(self._on_select_sound)
+        self.add_area_btn.clicked.connect(self._on_add_area)
+        self.remove_area_btn.clicked.connect(self._on_remove_area)
+        self.start_btn.clicked.connect(self._on_start)
+        self.stop_btn.clicked.connect(self._on_stop)
+        self.reset_btn.clicked.connect(self._on_reset_counter)
+        self.exit_btn.clicked.connect(self.close)
         
         self.btn_s.clicked.connect(lambda: self._apply_quick_scale("Small"))
         self.btn_m.clicked.connect(lambda: self._apply_quick_scale("Medium"))
@@ -265,17 +321,16 @@ class MainWindow(QMainWindow):
         self.timer_logic.map_completed.connect(self._on_map_completed)
         self.timer_logic.log_message.connect(self._add_log_entry)
 
-    # --- DRAG SUPPORT FOR FRAMELESS WINDOW ---
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton and self.is_mini:
-            self.drag_pos = event.globalPos() - self.frameGeometry().topLeft()
+            self.drag_pos = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
             event.accept()
 
     def mouseMoveEvent(self, event):
         if event.buttons() == Qt.LeftButton and self.is_mini and hasattr(self, 'drag_pos'):
-            self.move(event.globalPos() - self.drag_pos)
+            self.move(event.globalPosition().toPoint() - self.drag_pos)
             event.accept()
-            
+
     def _apply_quick_scale(self, scale_text):
         idx = self.scale_combo.findText(scale_text)
         if idx >= 0:
@@ -289,9 +344,10 @@ class MainWindow(QMainWindow):
         self.is_mini = checked
         flags = self.windowFlags()
         if checked:
-            flags |= Qt.WindowStaysOnTopHint
+            flags |= Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint
         else:
             flags &= ~Qt.WindowStaysOnTopHint
+            flags &= ~Qt.FramelessWindowHint
         self.setWindowFlags(flags)
         self._set_mini_state(checked)
         self.show()
@@ -308,39 +364,58 @@ class MainWindow(QMainWindow):
         scale_map = {"Large": 1.0, "Medium": 0.8, "Small": 0.65}
         scale = scale_map.get(self.scale_combo.currentText(), 1.0) if mini else 1.0
         
-        m_val = 0 if mini else 5
+        # In mini mode, we force the frame's internal margins to exactly 2 pixels.
+        # This completely removes math-based guesswork.
+        m_val = 2 if mini else 5
         self.reentry_card.update_style(m_val)
         self.map_timer_card.update_style(m_val)
         self.maps_card.update_style(m_val)
+        
         self.reentry_card.header_widget.setVisible(not mini)
         self.map_timer_card.header_widget.setVisible(not mini)
         self.maps_card.header_widget.setVisible(not mini)
         
-        self._refresh_displays_style(int(56 * scale))
+        # Clear any manual width/height limitations. Qt will wrap the text naturally.
+        self.reentry_card.setMinimumSize(0, 0)
+        self.reentry_card.setMaximumSize(16777215, 16777215)
+        self.map_timer_card.setMinimumSize(0, 0)
+        self.map_timer_card.setMaximumSize(16777215, 16777215)
+        self.maps_card.setMinimumSize(0, 0)
+        self.maps_card.setMaximumSize(16777215, 16777215)
+        
+        self._refresh_displays_style(scale)
         
         if mini:
-            w, h = int(680 * scale), int(160 * scale)
             if scale < 0.7:
-                self.info_bar.setFixedHeight(int(45))
+                self.info_bar.setFixedHeight(30)
                 self.info_bar.header_widget.hide()
             else:
-                self.info_bar.setFixedHeight(int(55 * scale))
-                self.info_bar.header_widget.show()
-            self.setMinimumSize(w, h)
-            self.resize(w, h)
+                self.info_bar.setFixedHeight(40)
+                self.info_bar.header_widget.hide()
+                
+            # Allow the main window to shrink to exactly fit its tightly packed contents
+            self.setMinimumSize(0, 0)
+            QTimer.singleShot(10, self.adjustSize)
         else:
             self.info_bar.setFixedHeight(50)
             self.info_bar.header_widget.show()
             self.setMinimumSize(1100, 550)
             self.resize(1100, 550)
 
-    def _refresh_displays_style(self, f_size):
-        scale_map = {"Large": 1.0, "Medium": 0.8, "Small": 0.65}
-        scale = scale_map.get(self.scale_combo.currentText(), 1.0) if self.is_mini else 1.0
-        px = int(56 * scale)
-        self.reentry_display.setStyleSheet(f"font-size: {px}px; font-weight: bold; color: {self.current_reentry_color}; background: transparent; padding: 0;")
-        self.map_timer_display.setStyleSheet(f"font-size: {px}px; font-weight: bold; color: #ff9800; background: transparent; padding: 0;")
-        self.maps_inline_label.setStyleSheet(f"font-size: {int(38 * scale)}px; font-weight: bold; color: #00bfa5; background: transparent; padding: 0;")
+    def _refresh_displays_style(self, scale):
+        # We use negative margins to cut off the empty vertical space around the font.
+        # This allows the frame to wrap tightly around the shape of the numbers.
+        px = int(72 * scale)
+        mt = int(-0.25 * px)
+        mb = int(-0.20 * px)
+        
+        px_small = int(48 * scale)
+        mt_small = int(-0.25 * px_small)
+        mb_small = int(-0.20 * px_small)
+
+        self.reentry_display.setStyleSheet(f"font-size: {px}px; font-weight: bold; color: {self.current_reentry_color}; background: transparent; padding: 0px; margin-top: {mt}px; margin-bottom: {mb}px; line-height: 1;")
+        self.map_timer_display.setStyleSheet(f"font-size: {px}px; font-weight: bold; color: #ff9800; background: transparent; padding: 0px; margin-top: {mt}px; margin-bottom: {mb}px; line-height: 1;")
+        self.maps_inline_label.setStyleSheet(f"font-size: {px_small}px; font-weight: bold; color: #00bfa5; background: transparent; padding: 0px; margin-top: {mt_small}px; margin-bottom: {mb_small}px; line-height: 1;")
 
     def _load_settings(self):
         self.game_path_edit.setText(self.config.get("game_path"))
@@ -478,7 +553,10 @@ class MainWindow(QMainWindow):
         else:
             r, g, b = 191, int(191 * (ratio * 2)), 165
         self.current_reentry_color = f"rgb({r}, {g}, {b})"
-        self._refresh_displays_style(0)
+        
+        scale_map = {"Large": 1.0, "Medium": 0.8, "Small": 0.65}
+        scale = scale_map.get(self.scale_combo.currentText(), 1.0) if self.is_mini else 1.0
+        self._refresh_displays_style(scale)
 
     def _on_reentry_finished(self):
         self._add_log_entry("WARN", "Timer", "RE-ENTRY FINISHED!")
