@@ -17,6 +17,10 @@ from .sound_manager import SoundManager
 DARK_THEME = """
 QMainWindow { background-color: #0b0f12; }
 QWidget { background-color: #0b0f12; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; }
+
+/* FIX: Ensure all labels have transparent backgrounds by default so they inherit the Card's color */
+QLabel { background: transparent; }
+
 QGroupBox { border: 1px solid #1a2228; border-radius: 8px; margin-top: 1.5em; font-weight: bold; color: #00bfa5; background-color: #12181d; }
 QLineEdit, QSpinBox, QListWidget, QComboBox { background-color: #1a2228; border: 1px solid #2c3e50; border-radius: 4px; padding: 5px; color: #ffffff; }
 QPushButton { background-color: #1a2228; border: 1px solid #00bfa5; border-radius: 4px; padding: 8px 15px; color: #00bfa5; font-weight: bold; }
@@ -83,7 +87,6 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("PoE 2 Map Timer Monitor")
         self.setMinimumSize(1100, 550)
         self.setStyleSheet(DARK_THEME)
-        
         self.is_debug = bool(args and "-debug" in args)
         self.is_mini = False
         self.current_reentry_color = "#00bfa5"
@@ -93,6 +96,7 @@ class MainWindow(QMainWindow):
         self.thread_pool = QThreadPool()
         self.log_watcher = None
         
+        # DEFENSIVE PRE-INIT
         self.maps_inline_label = QLabel("000")
         self.total_maps_val = QLabel("0")
         
@@ -212,10 +216,14 @@ class MainWindow(QMainWindow):
         mc_l.setContentsMargins(0, 0, 0, 0)
         mc_l.setSpacing(6)
         
-        self.btn_small = QPushButton("Small"); self.btn_small.setObjectName("miniBtn")
-        self.btn_medium = QPushButton("Medium"); self.btn_medium.setObjectName("miniBtn")
-        self.btn_large = QPushButton("Large"); self.btn_large.setObjectName("miniBtn")
-        self.expand_btn = QPushButton("Full UI"); self.expand_btn.setObjectName("miniBtn")
+        self.btn_small = QPushButton("Small")
+        self.btn_small.setObjectName("miniBtn")
+        self.btn_medium = QPushButton("Medium")
+        self.btn_medium.setObjectName("miniBtn")
+        self.btn_large = QPushButton("Large")
+        self.btn_large.setObjectName("miniBtn")
+        self.expand_btn = QPushButton("Full UI")
+        self.expand_btn.setObjectName("miniBtn")
         
         mc_l.addWidget(self.btn_small)
         mc_l.addWidget(self.btn_medium)
@@ -253,8 +261,11 @@ class MainWindow(QMainWindow):
         s_card.card_layout.addLayout(s_f)
         
         ctrl = QVBoxLayout()
-        self.start_btn = QPushButton("START MONITORING"); self.start_btn.setObjectName("startBtn")
-        self.stop_btn = QPushButton("STOP MONITORING"); self.stop_btn.setObjectName("stopBtn"); self.stop_btn.setEnabled(False)
+        self.start_btn = QPushButton("START MONITORING")
+        self.start_btn.setObjectName("startBtn")
+        self.stop_btn = QPushButton("STOP MONITORING")
+        self.stop_btn.setObjectName("stopBtn")
+        self.stop_btn.setEnabled(False)
         self.reset_btn = QPushButton("Reset Total Count")
         self.exit_btn = QPushButton("EXIT APPLICATION")
         self.exit_btn.setStyleSheet("color: #cf6679; border-color: #cf6679;")
@@ -263,7 +274,6 @@ class MainWindow(QMainWindow):
         ctrl.addWidget(self.stop_btn)
         ctrl.addWidget(self.reset_btn)
         ctrl.addWidget(self.exit_btn)
-        
         sub_l.addWidget(s_card, 2)
         sub_l.addLayout(ctrl, 1)
         right_l.addWidget(self.sub_stats_widget)
@@ -391,6 +401,7 @@ class MainWindow(QMainWindow):
         self._on_map_completed(count=self.config.get("maps_completed", 0))
         self.auto_start_check.setChecked(self.config.get("auto_start", False))
         self.mini_mode_check.setChecked(self.config.get("mini_mode", False))
+        
         saved_scale = self.config.get("mini_scale_text", "Large")
         idx = self.scale_combo.findText(saved_scale)
         if idx >= 0:
@@ -447,11 +458,10 @@ class MainWindow(QMainWindow):
             return
         if count is None:
             try:
-                count = int(self.total_maps_val.text()) + 1
+                count = int(self.maps_inline_label.text()) + 1
             except:
                 count = 1
         self.maps_inline_label.setText(f"{count:03d}")
-        self.total_maps_val.setText(str(count))
         self.config.set("maps_completed", count)
 
     def _add_log_entry(self, level, source, message):
