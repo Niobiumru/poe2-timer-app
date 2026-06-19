@@ -153,7 +153,7 @@ class MainWindow(QMainWindow):
     def __init__(self, args=None):
         super().__init__()
         self.setWindowTitle("PoE 2 Map Timer Monitor")
-        self.setMinimumSize(1100, 550)
+        self.setMinimumSize(855, 500)
         self.setStyleSheet(DARK_THEME)
         self.is_debug = bool(args and "-debug" in args)
         self.is_mini = False
@@ -838,8 +838,8 @@ del "%~f0"
             self.info_bar.setFixedHeight(50)
             self.info_bar.header_widget.show()
             self.add_current_area_btn.setVisible(False)
-            self.setMinimumSize(1100, 550)
-            self.resize(1100, 550)
+            self.setMinimumSize(855, 500)
+            self.resize(855, 500)
 
     def _refresh_displays_style(self, scale):
         px = int(72 * scale)
