@@ -6,7 +6,7 @@ from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                              QFrame, QTableWidget, QTableWidgetItem, QHeaderView,
                              QGridLayout, QCheckBox, QComboBox, QSizePolicy)
 from PySide6.QtCore import Qt, QThreadPool, Slot, QSize, QTimer
-from PySide6.QtGui import QColor, QPalette, QFont, QIcon
+from PySide6.QtGui import QColor, QPalette, QFont, QIcon, QFontMetrics
 
 from .config_manager import ConfigManager
 from .log_watcher import LogWatcher
@@ -834,11 +834,29 @@ del "%~f0"
             self.reentry_card.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
             self.map_timer_card.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
             self.maps_card.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-            w_val = int(120 * scale)
-            h_val = int(80 * scale)
-            self.reentry_card.setFixedSize(w_val, h_val)
-            self.map_timer_card.setFixedSize(w_val, h_val)
-            self.maps_card.setFixedSize(w_val, h_val)
+            
+            px = int(72 * scale)
+            px_small = int(48 * scale)
+            
+            # Use QFontMetrics to measure the exact width of text and set the cards size to match
+            font = QFont()
+            font.setPixelSize(px)
+            font.setBold(True)
+            fm = QFontMetrics(font)
+            text_w = fm.horizontalAdvance("00:00")
+            card_w = text_w + 16 # Padding + border padding
+            card_h = px + 12     # Height based on font size + padding
+            
+            font_small = QFont()
+            font_small.setPixelSize(px_small)
+            font_small.setBold(True)
+            fm_small = QFontMetrics(font_small)
+            text_w_small = fm_small.horizontalAdvance("000")
+            card_w_small = text_w_small + 16
+            
+            self.reentry_card.setFixedSize(card_w, card_h)
+            self.map_timer_card.setFixedSize(card_w, card_h)
+            self.maps_card.setFixedSize(card_w_small, card_h)
         else:
             self.reentry_card.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
             self.map_timer_card.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
