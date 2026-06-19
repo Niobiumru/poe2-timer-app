@@ -276,9 +276,10 @@ class MainWindow(QMainWindow):
         self.maps_inline_label.setStyleSheet("font-size: 38px; font-weight: bold; color: #fbbf24; background: transparent; padding: 0; margin: 0; line-height: 1;")
         self.maps_card.card_layout.addWidget(self.maps_inline_label, 0, Qt.AlignCenter)
         
-        timers_row.addWidget(self.reentry_card, 1)
-        timers_row.addWidget(self.map_timer_card, 1)
-        timers_row.addWidget(self.maps_card, 1)
+        timers_row.addWidget(self.reentry_card)
+        timers_row.addWidget(self.map_timer_card)
+        timers_row.addWidget(self.maps_card)
+        timers_row.addStretch()
         right_l.addLayout(timers_row)
 
         # Session Stats Bar
@@ -775,18 +776,12 @@ del "%~f0"
             self.map_timer_card.setFixedSize(w_val, h_val)
             self.maps_card.setFixedSize(w_val, h_val)
         else:
-            self.reentry_card.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-            self.map_timer_card.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-            self.maps_card.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-            self.reentry_card.setMinimumSize(0, 0)
-            self.reentry_card.setMaximumSize(16777215, 16777215)
-            self.map_timer_card.setMinimumSize(0, 0)
-            self.map_timer_card.setMaximumSize(16777215, 16777215)
-            self.maps_card.setMinimumSize(0, 0)
-            self.maps_card.setMaximumSize(16777215, 16777215)
-            self.reentry_card.setFixedHeight(120)
-            self.map_timer_card.setFixedHeight(120)
-            self.maps_card.setFixedHeight(120)
+            self.reentry_card.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+            self.map_timer_card.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+            self.maps_card.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+            self.reentry_card.setFixedSize(180, 120)
+            self.map_timer_card.setFixedSize(180, 120)
+            self.maps_card.setFixedSize(180, 120)
             
         self._refresh_displays_style(scale)
         
