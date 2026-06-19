@@ -817,7 +817,7 @@ del "%~f0"
         if self.is_debug:
             self.log_group.setVisible(not mini)
             
-        scale_map = {"Large": 1.0, "Medium": 0.8, "Small": 0.65}
+        scale_map = {"Large": 0.75, "Medium": 0.6, "Small": 0.5}
         scale = scale_map.get(self.scale_combo.currentText(), 1.0) if mini else 1.0
         
         # In mini mode, we force the frame's internal margins to exactly 2 pixels.
@@ -999,7 +999,7 @@ del "%~f0"
         else:
             self.current_reentry_color = self.base_reentry_color
             
-        scale_map = {"Large": 1.0, "Medium": 0.8, "Small": 0.65}
+        scale_map = {"Large": 0.75, "Medium": 0.6, "Small": 0.5}
         scale = scale_map.get(self.scale_combo.currentText(), 1.0) if self.is_mini else 1.0
         self._refresh_displays_style(scale)
 
