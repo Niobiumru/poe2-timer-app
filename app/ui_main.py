@@ -367,23 +367,23 @@ class MainWindow(QMainWindow):
         self.start_btn = QPushButton("▶")
         self.start_btn.setObjectName("startBtn")
         self.start_btn.setFixedSize(45, 45)
-        self.start_btn.setStyleSheet("padding: 0px; font-size: 18px;")
+        self.start_btn.setStyleSheet("padding: 0px; padding-left: 2px; font-size: 26px;")
         self.start_btn.setToolTip("Start Monitoring")
         
         self.stop_btn = QPushButton("■")
         self.stop_btn.setObjectName("stopBtn")
         self.stop_btn.setEnabled(False)
         self.stop_btn.setFixedSize(45, 45)
-        self.stop_btn.setStyleSheet("padding: 0px; font-size: 20px;")
+        self.stop_btn.setStyleSheet("padding: 0px; font-size: 24px;")
         self.stop_btn.setToolTip("Stop Monitoring")
         
         self.reset_btn = QPushButton("↻")
         self.reset_btn.setFixedSize(45, 45)
-        self.reset_btn.setStyleSheet("padding: 0px; font-size: 22px; font-weight: bold;")
+        self.reset_btn.setStyleSheet("padding: 0px; font-size: 28px; font-weight: bold;")
         self.reset_btn.setToolTip("Reset Total Count")
         
         self.exit_btn = QPushButton("✖")
-        self.exit_btn.setStyleSheet("color: #ef4444; border-color: #ef4444; padding: 0px; font-size: 18px;")
+        self.exit_btn.setStyleSheet("color: #ef4444; border-color: #ef4444; padding: 0px; font-size: 26px;")
         self.exit_btn.setFixedSize(45, 45)
         self.exit_btn.setToolTip("Exit Application")
         
