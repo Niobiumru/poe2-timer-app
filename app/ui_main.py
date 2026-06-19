@@ -329,72 +329,73 @@ class MainWindow(QMainWindow):
 
         # Unified Settings & Controls Card
         self.sub_stats_widget = Card("Settings & Controls", color="#8b5cf6")
-        panel_layout = QHBoxLayout()
-        panel_layout.setContentsMargins(10, 10, 10, 10)
-        panel_layout.setSpacing(20)
         
-        # Left Grid: Settings
+        # Grid layout for settings and control buttons to achieve perfect symmetry
         s_f = QGridLayout()
+        s_f.setContentsMargins(10, 10, 10, 10)
         s_f.setSpacing(8)
+        s_f.setHorizontalSpacing(15)
+        
+        s_f.setColumnStretch(0, 0)
+        s_f.setColumnStretch(1, 1)
+        s_f.setColumnStretch(2, 0)
+        s_f.setColumnStretch(3, 0)
+        
+        # Row 0: Re-entry
         s_f.addWidget(QLabel("Re-entry (s)"), 0, 0)
         self.reentry_spin = QSpinBox()
         self.reentry_spin.setRange(1, 3600)
         s_f.addWidget(self.reentry_spin, 0, 1, 1, 2)
         
+        self.start_btn = QPushButton("▶")
+        self.start_btn.setObjectName("startBtn")
+        self.start_btn.setFixedSize(32, 32)
+        self.start_btn.setStyleSheet("padding: 0px; padding-left: 2px; font-size: 18px;")
+        self.start_btn.setToolTip("Start Monitoring")
+        s_f.addWidget(self.start_btn, 0, 3)
+        
+        # Row 1: Sound Path
         self.sound_edit = QLineEdit()
         self.sound_browse = QPushButton("...")
+        self.sound_browse.setFixedSize(32, 32)
+        self.sound_browse.setStyleSheet("padding: 0px; font-size: 14px; font-weight: bold;")
         s_f.addWidget(QLabel("Sound Path"), 1, 0)
         s_f.addWidget(self.sound_edit, 1, 1)
         s_f.addWidget(self.sound_browse, 1, 2)
         
+        self.stop_btn = QPushButton("■")
+        self.stop_btn.setObjectName("stopBtn")
+        self.stop_btn.setEnabled(False)
+        self.stop_btn.setFixedSize(32, 32)
+        self.stop_btn.setStyleSheet("padding: 0px; font-size: 16px;")
+        self.stop_btn.setToolTip("Stop Monitoring")
+        s_f.addWidget(self.stop_btn, 1, 3)
+        
+        # Row 2: Checkboxes
         self.auto_start_check = QCheckBox("Auto-start")
         self.mini_mode_check = QCheckBox("Mini Mode")
         s_f.addWidget(self.auto_start_check, 2, 0)
         s_f.addWidget(self.mini_mode_check, 2, 1, 1, 2)
         
+        self.reset_btn = QPushButton("↻")
+        self.reset_btn.setFixedSize(32, 32)
+        self.reset_btn.setStyleSheet("padding: 0px; font-size: 20px; font-weight: bold;")
+        self.reset_btn.setToolTip("Reset Total Count")
+        s_f.addWidget(self.reset_btn, 2, 3)
+        
+        # Row 3: Mini Size
         self.scale_combo = QComboBox()
         self.scale_combo.addItems(["Large", "Medium", "Small"])
         s_f.addWidget(QLabel("Mini Size"), 3, 0)
         s_f.addWidget(self.scale_combo, 3, 1, 1, 2)
         
-        panel_layout.addLayout(s_f, 2)
-        
-        # Right Side: Action Buttons
-        ctrl = QVBoxLayout()
-        ctrl.setSpacing(6)
-        ctrl.setAlignment(Qt.AlignCenter)
-        
-        self.start_btn = QPushButton("▶")
-        self.start_btn.setObjectName("startBtn")
-        self.start_btn.setFixedSize(45, 45)
-        self.start_btn.setStyleSheet("padding: 0px; padding-left: 2px; font-size: 26px;")
-        self.start_btn.setToolTip("Start Monitoring")
-        
-        self.stop_btn = QPushButton("■")
-        self.stop_btn.setObjectName("stopBtn")
-        self.stop_btn.setEnabled(False)
-        self.stop_btn.setFixedSize(45, 45)
-        self.stop_btn.setStyleSheet("padding: 0px; font-size: 24px;")
-        self.stop_btn.setToolTip("Stop Monitoring")
-        
-        self.reset_btn = QPushButton("↻")
-        self.reset_btn.setFixedSize(45, 45)
-        self.reset_btn.setStyleSheet("padding: 0px; font-size: 28px; font-weight: bold;")
-        self.reset_btn.setToolTip("Reset Total Count")
-        
         self.exit_btn = QPushButton("✖")
-        self.exit_btn.setStyleSheet("color: #ef4444; border-color: #ef4444; padding: 0px; font-size: 26px;")
-        self.exit_btn.setFixedSize(45, 45)
+        self.exit_btn.setStyleSheet("color: #ef4444; border-color: #ef4444; padding: 0px; font-size: 18px;")
+        self.exit_btn.setFixedSize(32, 32)
         self.exit_btn.setToolTip("Exit Application")
+        s_f.addWidget(self.exit_btn, 3, 3)
         
-        ctrl.addWidget(self.start_btn)
-        ctrl.addWidget(self.stop_btn)
-        ctrl.addWidget(self.reset_btn)
-        ctrl.addWidget(self.exit_btn)
-        
-        panel_layout.addLayout(ctrl, 1)
-        
-        self.sub_stats_widget.card_layout.addLayout(panel_layout)
+        self.sub_stats_widget.card_layout.addLayout(s_f)
         right_l.addWidget(self.sub_stats_widget)
         
         self.dashboard_layout.addWidget(self.right_col_widget, 2)
