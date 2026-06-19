@@ -44,20 +44,62 @@ QPushButton:hover {
     color: #ffffff; 
 }
 QPushButton#startBtn { 
-    background-color: #8b5cf6; 
-    border: none;
-    color: #ffffff; 
+    background-color: #12181d; 
+    border: 1.5px solid #8b5cf6; 
+    border-radius: 6px; 
+    color: #8b5cf6; 
+    font-size: 18px; 
+    font-weight: bold; 
+    padding: 0px; 
+    padding-left: 2px;
 }
-QPushButton#startBtn:hover {
-    background-color: #7c3aed;
+QPushButton#startBtn:hover { 
+    background-color: #8b5cf6; 
+    color: #ffffff; 
 }
 QPushButton#stopBtn { 
+    background-color: #12181d; 
+    border: 1.5px solid #ef4444; 
+    border-radius: 6px; 
+    color: #ef4444; 
+    font-size: 16px; 
+    font-weight: bold; 
+    padding: 0px; 
+}
+QPushButton#stopBtn:hover { 
     background-color: #ef4444; 
-    border: none;
     color: #ffffff; 
 }
-QPushButton#stopBtn:hover {
-    background-color: #dc2626;
+QPushButton#stopBtn:disabled { 
+    background-color: #12181d; 
+    border: 1.5px solid #ef444444; 
+    color: #ef444444; 
+}
+QPushButton#resetBtn { 
+    background-color: #12181d; 
+    border: 1.5px solid #8b5cf6; 
+    border-radius: 6px; 
+    color: #8b5cf6; 
+    font-size: 20px; 
+    font-weight: bold; 
+    padding: 0px; 
+}
+QPushButton#resetBtn:hover { 
+    background-color: #8b5cf6; 
+    color: #ffffff; 
+}
+QPushButton#exitBtn { 
+    background-color: #12181d; 
+    border: 1.5px solid #ef4444; 
+    border-radius: 6px; 
+    color: #ef4444; 
+    font-size: 18px; 
+    font-weight: bold; 
+    padding: 0px; 
+}
+QPushButton#exitBtn:hover { 
+    background-color: #ef4444; 
+    color: #ffffff; 
 }
 QPushButton#updateBtn { 
     background-color: #fbbf24; 
@@ -351,7 +393,6 @@ class MainWindow(QMainWindow):
         self.start_btn = QPushButton("▶")
         self.start_btn.setObjectName("startBtn")
         self.start_btn.setFixedSize(32, 32)
-        self.start_btn.setStyleSheet("padding: 0px; padding-left: 2px; font-size: 18px;")
         self.start_btn.setToolTip("Start Monitoring")
         s_f.addWidget(self.start_btn, 0, 3)
         
@@ -368,7 +409,6 @@ class MainWindow(QMainWindow):
         self.stop_btn.setObjectName("stopBtn")
         self.stop_btn.setEnabled(False)
         self.stop_btn.setFixedSize(32, 32)
-        self.stop_btn.setStyleSheet("padding: 0px; font-size: 16px;")
         self.stop_btn.setToolTip("Stop Monitoring")
         s_f.addWidget(self.stop_btn, 1, 3)
         
@@ -379,8 +419,8 @@ class MainWindow(QMainWindow):
         s_f.addWidget(self.mini_mode_check, 2, 1, 1, 2)
         
         self.reset_btn = QPushButton("↻")
+        self.reset_btn.setObjectName("resetBtn")
         self.reset_btn.setFixedSize(32, 32)
-        self.reset_btn.setStyleSheet("padding: 0px; font-size: 20px; font-weight: bold;")
         self.reset_btn.setToolTip("Reset Total Count")
         s_f.addWidget(self.reset_btn, 2, 3)
         
@@ -391,7 +431,7 @@ class MainWindow(QMainWindow):
         s_f.addWidget(self.scale_combo, 3, 1, 1, 2)
         
         self.exit_btn = QPushButton("✖")
-        self.exit_btn.setStyleSheet("color: #ef4444; border-color: #ef4444; padding: 0px; font-size: 18px;")
+        self.exit_btn.setObjectName("exitBtn")
         self.exit_btn.setFixedSize(32, 32)
         self.exit_btn.setToolTip("Exit Application")
         s_f.addWidget(self.exit_btn, 3, 3)
