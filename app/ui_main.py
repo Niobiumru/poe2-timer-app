@@ -775,15 +775,18 @@ del "%~f0"
             self.map_timer_card.setFixedSize(w_val, h_val)
             self.maps_card.setFixedSize(w_val, h_val)
         else:
-            self.reentry_card.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-            self.map_timer_card.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-            self.maps_card.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            self.reentry_card.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+            self.map_timer_card.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+            self.maps_card.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
             self.reentry_card.setMinimumSize(0, 0)
             self.reentry_card.setMaximumSize(16777215, 16777215)
             self.map_timer_card.setMinimumSize(0, 0)
             self.map_timer_card.setMaximumSize(16777215, 16777215)
             self.maps_card.setMinimumSize(0, 0)
             self.maps_card.setMaximumSize(16777215, 16777215)
+            self.reentry_card.setFixedHeight(120)
+            self.map_timer_card.setFixedHeight(120)
+            self.maps_card.setFixedHeight(120)
             
         self._refresh_displays_style(scale)
         
