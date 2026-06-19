@@ -1,3 +1,5 @@
+import fnmatch
+import re
 from PySide6.QtCore import QObject, QTimer, Signal
 
 class TimerLogic(QObject):
@@ -61,8 +63,36 @@ class TimerLogic(QObject):
             area_name = event["value"]
             self.log_message.emit("INFO", "Parser", f"Generating level area \"{area_name}\"")
             
-            if area_name in tracked_areas:
-                self.log_message.emit("INFO", "Timer", f"Re-entry timer started for {area_name} ({reentry_duration} seconds)")
+            is_tracked = False
+            matching_pattern = None
+            for pattern in tracked_areas:
+                # Check for regex: or regexp: prefix
+                if pattern.lower().startswith("regexp:"):
+                    regex_str = pattern[7:]
+                    is_regex = True
+                elif pattern.lower().startswith("regex:"):
+                    regex_str = pattern[6:]
+                    is_regex = True
+                else:
+                    is_regex = False
+                    
+                if is_regex:
+                    try:
+                        if re.search(regex_str, area_name, re.IGNORECASE):
+                            is_tracked = True
+                            matching_pattern = pattern
+                            break
+                    except Exception as e:
+                        self.log_message.emit("ERROR", "Timer", f"Invalid regex pattern \"{regex_str}\": {e}")
+                else:
+                    # Default wildcard matching
+                    if fnmatch.fnmatchcase(area_name.lower(), pattern.lower()):
+                        is_tracked = True
+                        matching_pattern = pattern
+                        break
+            
+            if is_tracked:
+                self.log_message.emit("INFO", "Timer", f"Re-entry timer started for {area_name} (matched \"{matching_pattern}\", {reentry_duration} seconds)")
                 self.start_reentry(reentry_duration)
                 
                 if self.pending_instance_id and self.pending_instance_id != self.last_instance_id:

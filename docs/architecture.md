@@ -18,6 +18,7 @@
 ```
 poe2_timer_app/
 ├── docs/                # Project documentation and AI context
+│   └── architecture.md  # System architecture and specifications
 ├── app/                 # Main application package
 │   ├── __init__.py      
 │   ├── config_manager.py # JSON read/write logic
@@ -25,7 +26,12 @@ poe2_timer_app/
 │   ├── parser_logic.py   # Regex/String parsing for game events
 │   ├── sound_manager.py  # Audio playback using QtMultimedia
 │   ├── timer_logic.py    # QTimer management and state tracking
-│   └── ui_main.py        # PySide6 MainWindow and UI layouts
+│   ├── ui_main.py        # PySide6 MainWindow and UI layouts
+│   ├── updater.py        # GitHub release checking and downloading
+│   └── version.py        # Version string and repository config
+├── assets/              # Static media files
+│   └── sounds/          
+│       └── notify.mp3   # Default alert sound effect
 ├── tests/               # Validation and testing scripts
 │   ├── test_launch.py    # Dry-run script to verify UI instantiates
 │   └── validate_logic.py # Unit tests for parser and timer rules
@@ -33,6 +39,8 @@ poe2_timer_app/
 ├── main.pyw             # Application entry point (Windowed/No-Console)
 ├── config.json          # User settings (generated at runtime)
 ├── GEMINI.md            # Hard constraints and specific project rules
+├── PoE2Timer.spec       # PyInstaller build specification
+├── release.py           # Local release automation & testing script
 └── requirements.txt     # Python dependencies
 ```
 
@@ -50,6 +58,7 @@ The central Controller for time-based logic. Inherits from `QObject` to utilize 
 - Manages instances of `QTimer` (re-entry countdown and area elapsed time).
 - Holds state regarding `last_instance_id` and `pending_instance_id` to determine when to reset or pause timers.
 - Emits ticks (`reentry_tick`, `area_tick`) consumed by `ui_main.py` for rendering.
+- Matches area names against tracked areas using case-insensitive wildcard globbing (via `fnmatch`) or regular expressions (when prefixed with `regex:` or `regexp:`).
 
 ### 3. `app/log_watcher.py`
 The Data ingress layer. Inherits from `QRunnable`.
@@ -63,7 +72,16 @@ The parsing engine.
 - Contains string matching and regex logic.
 - Converts raw strings like `[DEBUG Client 55380] Generating level 79 area "MapIceCave"` into actionable dictionaries: `{"type": "area", "value": "MapIceCave"}`.
 
-### 5. `app/config_manager.py` & `app/sound_manager.py`
+### 5. app/config_manager.py, app/sound_manager.py & app/updater.py
 Utility classes.
 - **ConfigManager:** Abstracted layer to read/write settings safely to `config.json`.
 - **SoundManager:** Abstracted wrapper around `QSoundEffect` to play `.wav` or `.mp3` alerts when the re-entry timer finishes.
+- **UpdateManager:** Connects to the GitHub API to check for updates, parses release info, downloads the latest binary in a separate thread, and runs the self-replacement batch script.
+- **version.py:** Small constants file defining `VERSION`, `GITHUB_USER`, and `GITHUB_REPO` to centralize identity information.
+
+### 6. `release.py`
+Release automation script.
+- Validates the codebase prior to release (syntax compilation, unit tests, and offscreen GUI launch dry-run).
+- Bumps version numbers interactively (Major, Minor, Patch).
+- Executes a clean PyInstaller build of `dist/PoE2Timer.exe`.
+- Commits changes to Git and creates a local release tag for the new version.

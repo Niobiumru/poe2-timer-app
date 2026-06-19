@@ -3,13 +3,16 @@ import os
 
 DEFAULT_CONFIG = {
     "game_path": "",
-    "tracked_areas": ["MapIceCave", "MapDesert", "MapForest"],
-    "reentry_timer_duration": 60,  # seconds
+    "tracked_areas": [
+        "Map*",
+        "Expedition*"
+    ],
+    "reentry_timer_duration": 320,  # Updated to user preference
     "area_timer_limit": 300,       # seconds (for gradient)
     "maps_completed": 0,           # Counter
-    "auto_start": False,           # New option
-    "mini_mode": False,            # New option
-    "mini_scale": 1.0,             # New scale option (1.0, 0.5, 0.25)
+    "auto_start": True,            # Preferred by user
+    "mini_mode": False,            
+    "mini_scale": 1.0,             
     "sound_file": "",
     "ui_settings": {}
 }

@@ -17,33 +17,90 @@ from .version import VERSION
 from .updater import UpdateManager
 
 DARK_THEME = """
-QMainWindow { background-color: #0b0f12; }
-QWidget { background-color: #0b0f12; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; }
+QMainWindow { background-color: #09090b; }
+QWidget { background-color: #09090b; color: #fafafa; font-family: 'Arial Black', 'Impact', 'Arial', sans-serif; font-weight: bold; }
 QLabel { background: transparent; }
-QGroupBox { border: 1px solid #1a2228; border-radius: 8px; margin-top: 1.5em; font-weight: bold; color: #00bfa5; background-color: #12181d; }
-QLineEdit, QSpinBox, QListWidget, QComboBox { background-color: #1a2228; border: 1px solid #2c3e50; border-radius: 4px; padding: 5px; color: #ffffff; }
-QPushButton { background-color: #1a2228; border: 1px solid #00bfa5; border-radius: 4px; padding: 8px 15px; color: #00bfa5; font-weight: bold; }
-QPushButton:hover { background-color: #2c3e50; }
-QPushButton#startBtn { background-color: #00bfa5; color: #0b0f12; }
-QPushButton#stopBtn { background-color: #cf6679; color: #0b0f12; border-color: #cf6679; }
-QPushButton#updateBtn { background-color: #ff9800; color: #0b0f12; border: none; font-size: 10px; padding: 2px 10px; }
+QGroupBox { border: 1px solid #27272a; border-radius: 4px; margin-top: 1.5em; font-weight: bold; color: #8b5cf6; background-color: #18181b; }
+QLineEdit, QSpinBox, QListWidget, QComboBox { 
+    background-color: #18181b; 
+    border: 1px solid #27272a; 
+    border-radius: 4px; 
+    padding: 6px; 
+    color: #ffffff; 
+}
+QLineEdit:focus, QSpinBox:focus, QListWidget:focus, QComboBox:focus {
+    border: 1px solid #8b5cf6;
+}
+QPushButton { 
+    background-color: #18181b; 
+    border: 1px solid #8b5cf6; 
+    border-radius: 4px; 
+    padding: 8px 15px; 
+    color: #8b5cf6; 
+    font-weight: bold; 
+}
+QPushButton:hover { 
+    background-color: #8b5cf6; 
+    color: #ffffff; 
+}
+QPushButton#startBtn { 
+    background-color: #8b5cf6; 
+    border: none;
+    color: #ffffff; 
+}
+QPushButton#startBtn:hover {
+    background-color: #7c3aed;
+}
+QPushButton#stopBtn { 
+    background-color: #ef4444; 
+    border: none;
+    color: #ffffff; 
+}
+QPushButton#stopBtn:hover {
+    background-color: #dc2626;
+}
+QPushButton#updateBtn { 
+    background-color: #fbbf24; 
+    color: #09090b; 
+    border: none; 
+    font-size: 10px; 
+    padding: 2px 10px; 
+    border-radius: 4px;
+}
 QPushButton#miniBtn { 
-    background-color: #12181d; 
-    border: 1px solid #00bfa544; 
-    color: #00bfa5; 
+    background-color: #18181b; 
+    border: 1px solid #8b5cf644; 
+    color: #8b5cf6; 
     padding: 2px 8px; 
     font-size: 11px; 
     font-weight: bold; 
     border-radius: 4px;
     min-height: 22px;
 }
-QPushButton#miniBtn:hover { border: 1px solid #00bfa5; background-color: #1a2228; }
-QTableWidget { background-color: #12181d; gridline-color: #1a2228; border: none; }
-QHeaderView::section { background-color: #1a2228; color: #00bfa5; padding: 5px; border: 1px solid #12181d; }
+QPushButton#miniBtn:hover { 
+    border: 1px solid #8b5cf6; 
+    background-color: #18181b; 
+}
+QScrollBar:vertical {
+    border: none;
+    background: #09090b;
+    width: 10px;
+    margin: 0px;
+}
+QScrollBar::handle:vertical {
+    background: #27272a;
+    min-height: 20px;
+    border-radius: 5px;
+}
+QScrollBar::handle:vertical:hover {
+    background: #8b5cf6;
+}
+QTableWidget { background-color: #18181b; gridline-color: #27272a; border: none; }
+QHeaderView::section { background-color: #18181b; color: #fafafa; padding: 5px; border: 1px solid #27272a; }
 """
 
 class Card(QFrame):
-    def __init__(self, title, color="#00bfa5"):
+    def __init__(self, title, color="#8b5cf6"):
         super().__init__()
         self.setObjectName("mainCard")
         self.setFrameShape(QFrame.StyledPanel)
@@ -62,25 +119,35 @@ class Card(QFrame):
         header_l.addStretch()
         self.card_layout.addWidget(self.header_widget)
         
-        self.update_style(5)
+        self.update_style(6)
 
     def update_style(self, margins):
         self.setStyleSheet(f"""
             QFrame#mainCard {{ 
-                background-color: #12181d; 
-                border: 1px solid {self.color}33; 
-                border-radius: 8px; 
+                background-color: #18181b; 
+                border: 2px solid #27272a; 
+                border-radius: 6px; 
             }}
             QLabel#cardTitle {{ 
-                color: {self.color}; 
-                font-weight: bold; 
-                font-size: 8px; 
+                color: #fbbf24; 
+                font-weight: 900; 
+                font-size: 11px; 
                 text-transform: uppercase; 
                 border: none; 
                 background: transparent; 
+                letter-spacing: 2px;
             }}
         """)
         self.card_layout.setContentsMargins(margins, margins, margins, margins)
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 class MainWindow(QMainWindow):
     def __init__(self, args=None):
@@ -90,8 +157,8 @@ class MainWindow(QMainWindow):
         self.setStyleSheet(DARK_THEME)
         self.is_debug = bool(args and "-debug" in args)
         self.is_mini = False
-        self.current_reentry_color = "#00bfa5"
-        self.base_reentry_color = "#00bfa5"
+        self.current_reentry_color = "#8b5cf6"
+        self.base_reentry_color = "#8b5cf6"
         self.is_blink_hidden = False
         self.blink_timer = QTimer(self)
         self.blink_timer.timeout.connect(self._on_blink_timeout)
@@ -120,169 +187,191 @@ class MainWindow(QMainWindow):
         central = QWidget()
         self.setCentralWidget(central)
         self.main_layout = QVBoxLayout(central)
-        self.main_layout.setSpacing(5)
-        self.main_layout.setContentsMargins(8, 8, 8, 8)
+        self.main_layout.setSpacing(8)
+        self.main_layout.setContentsMargins(12, 12, 12, 12)
         
-        # --- Top ---
+        # --- Top Area (Unified Grid) ---
         self.top_container = QWidget()
-        top_l = QVBoxLayout(self.top_container)
+        top_l = QGridLayout(self.top_container)
         top_l.setContentsMargins(0, 0, 0, 0)
-        f_l = QHBoxLayout()
-        f_l.addWidget(QLabel("Game Folder"))
+        top_l.setSpacing(8)
+        
+        game_label = QLabel("Game Folder")
         self.game_path_edit = QLineEdit()
         self.game_path_edit.setReadOnly(True)
         self.select_path_btn = QPushButton("Browse")
-        f_l.addWidget(self.game_path_edit)
-        f_l.addWidget(self.select_path_btn)
-        top_l.addLayout(f_l)
         
-        l_l = QHBoxLayout()
-        l_l.addWidget(QLabel("Client Log"))
+        top_l.addWidget(game_label, 0, 0)
+        top_l.addWidget(self.game_path_edit, 0, 1)
+        top_l.addWidget(self.select_path_btn, 0, 2)
+        
+        log_label = QLabel("Client Log")
         self.client_log_edit = QLineEdit()
         self.client_log_edit.setReadOnly(True)
         self.monitoring_status = QLabel("● Inactive")
-        self.monitoring_status.setStyleSheet("color: #cf6679; font-weight: bold;")
-        l_l.addWidget(self.client_log_edit)
-        l_l.addWidget(self.monitoring_status)
-        top_l.addLayout(l_l)
+        self.monitoring_status.setStyleSheet("color: #ef4444; font-weight: bold;")
+        
+        top_l.addWidget(log_label, 1, 0)
+        top_l.addWidget(self.client_log_edit, 1, 1)
+        top_l.addWidget(self.monitoring_status, 1, 2)
+        
+        top_l.setColumnStretch(0, 0)
+        top_l.setColumnStretch(1, 1)
+        top_l.setColumnStretch(2, 0)
+        
         self.main_layout.addWidget(self.top_container)
 
         # --- Dashboard ---
         self.dashboard_widget = QWidget()
         self.dashboard_layout = QHBoxLayout(self.dashboard_widget)
         self.dashboard_layout.setContentsMargins(0, 0, 0, 0)
-        self.dashboard_layout.setSpacing(8)
+        self.dashboard_layout.setSpacing(10)
 
-        # Left Column
+        # Left Column (Tracked Areas)
         self.left_col_widget = QWidget()
+        self.left_col_widget.setFixedWidth(220)
         left_l = QVBoxLayout(self.left_col_widget)
         left_l.setContentsMargins(0, 0, 0, 0)
-        area_group = Card("Tracked Areas")
+        area_group = Card("Tracked Areas", color="#8b5cf6")
         self.area_list = QListWidget()
         area_group.card_layout.addWidget(self.area_list)
         b_l = QHBoxLayout()
+        b_l.setSpacing(6)
         self.add_area_btn = QPushButton("+ Add")
         self.remove_area_btn = QPushButton("- Remove")
-        self.remove_area_btn.setStyleSheet("color: #cf6679; border-color: #cf6679;")
+        self.remove_area_btn.setStyleSheet("color: #ef4444; border-color: #ef4444;")
         b_l.addWidget(self.add_area_btn)
         b_l.addWidget(self.remove_area_btn)
         area_group.card_layout.addLayout(b_l)
         left_l.addWidget(area_group)
-        self.dashboard_layout.addWidget(self.left_col_widget, 1)
+        self.dashboard_layout.addWidget(self.left_col_widget, 0)
 
-        # Right Column
+        # Right Column (Timers & Settings)
         self.right_col_widget = QWidget()
         right_l = QVBoxLayout(self.right_col_widget)
         right_l.setContentsMargins(0, 0, 0, 0)
-        right_l.setSpacing(8)
+        right_l.setSpacing(10)
         
+        # Timers layout (horizontal, stretch to fill)
         timers_row = QHBoxLayout()
-        timers_row.setSpacing(5)
+        timers_row.setSpacing(8)
         
-        # TIMERS WITH FIXED SIZE POLICY (NATIVE WRAPPING)
-        self.reentry_card = Card("Re-entry Timer")
-        self.reentry_card.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.reentry_card = Card("Re-entry Timer", color="#8b5cf6")
         self.reentry_display = QLabel("00:00")
         self.reentry_display.setAlignment(Qt.AlignCenter)
-        self.reentry_display.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.reentry_display.setStyleSheet("font-size: 56px; font-weight: bold; color: #00bfa5; background: transparent; padding: 0; margin: 0; line-height: 1;")
+        self.reentry_display.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.reentry_display.setStyleSheet("font-size: 56px; font-weight: bold; color: #8b5cf6; background: transparent; padding: 0; margin: 0; line-height: 1;")
         self.reentry_card.card_layout.addWidget(self.reentry_display, 0, Qt.AlignCenter)
         
-        self.map_timer_card = Card("Map Timer")
-        self.map_timer_card.color = "#ff9800"
-        self.map_timer_card.update_style(5)
-        self.map_timer_card.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.map_timer_card = Card("Map Timer", color="#fbbf24")
         self.map_timer_display = QLabel("00:00")
         self.map_timer_display.setAlignment(Qt.AlignCenter)
-        self.map_timer_display.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.map_timer_display.setStyleSheet("font-size: 56px; font-weight: bold; color: #ff9800; background: transparent; padding: 0; margin: 0; line-height: 1;")
+        self.map_timer_display.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.map_timer_display.setStyleSheet("font-size: 56px; font-weight: bold; color: #fbbf24; background: transparent; padding: 0; margin: 0; line-height: 1;")
         self.map_timer_card.card_layout.addWidget(self.map_timer_display, 0, Qt.AlignCenter)
         
-        self.maps_card = Card("Maps")
-        self.maps_card.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.maps_card = Card("Maps", color="#fbbf24")
         self.maps_inline_label.setAlignment(Qt.AlignCenter)
-        self.maps_inline_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.maps_inline_label.setStyleSheet("font-size: 38px; font-weight: bold; color: #00bfa5; background: transparent; padding: 0; margin: 0; line-height: 1;")
+        self.maps_inline_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.maps_inline_label.setStyleSheet("font-size: 38px; font-weight: bold; color: #fbbf24; background: transparent; padding: 0; margin: 0; line-height: 1;")
         self.maps_card.card_layout.addWidget(self.maps_inline_label, 0, Qt.AlignCenter)
         
-        # Add to row with alignment to prevent any expansion
-        timers_row.addWidget(self.reentry_card, 0, Qt.AlignLeft | Qt.AlignTop)
-        timers_row.addWidget(self.map_timer_card, 0, Qt.AlignLeft | Qt.AlignTop)
-        timers_row.addWidget(self.maps_card, 0, Qt.AlignLeft | Qt.AlignTop)
-        timers_row.addStretch()
+        timers_row.addWidget(self.reentry_card, 1)
+        timers_row.addWidget(self.map_timer_card, 1)
+        timers_row.addWidget(self.maps_card, 1)
         right_l.addLayout(timers_row)
 
         # Session Stats Bar
-        self.info_bar = Card("Session Stats")
+        self.info_bar = Card("Session Stats", color="#8b5cf6")
         self.info_bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         self.info_bar.setFixedHeight(50)
-        info_l = QHBoxLayout()
-        info_l.setContentsMargins(10, 0, 10, 0)
-        info_l.setSpacing(15)
+        self.info_l = QHBoxLayout()
+        self.info_l.setContentsMargins(10, 0, 10, 0)
+        self.info_l.setSpacing(15)
         
         self.last_area_val = QLabel("No Area")
-        self.last_area_val.setStyleSheet("color: #00bfa5; font-weight: bold; font-size: 11px; background: transparent; border: none;")
-        info_l.addWidget(self.last_area_val)
-        info_l.addStretch()
+        self.last_area_val.setStyleSheet("color: #8b5cf6; font-weight: bold; font-size: 11px; background: transparent; border: none;")
+        self.info_l.addWidget(self.last_area_val)
+        
+        self.add_current_area_btn = QPushButton("+")
+        self.add_current_area_btn.setObjectName("miniBtn")
+        self.add_current_area_btn.setToolTip("Add current area to tracked list")
+        self.add_current_area_btn.setCursor(Qt.PointingHandCursor)
+        self.add_current_area_btn.setVisible(False)
+        self.info_l.addWidget(self.add_current_area_btn)
+        
+        self.info_l.addStretch()
         
         self.mini_controls_widget = QWidget()
         self.mini_controls_widget.setStyleSheet("background: transparent; border: none;")
-        mc_l = QHBoxLayout(self.mini_controls_widget)
-        mc_l.setContentsMargins(0, 0, 0, 0)
-        mc_l.setSpacing(0) 
+        self.mc_l = QHBoxLayout(self.mini_controls_widget)
+        self.mc_l.setContentsMargins(0, 0, 0, 0)
+        self.mc_l.setSpacing(0) 
+        self.mc_l.setAlignment(Qt.AlignCenter)
         
         self.btn_s = QPushButton("S"); self.btn_s.setObjectName("miniBtn")
         self.btn_m = QPushButton("M"); self.btn_m.setObjectName("miniBtn")
         self.btn_l = QPushButton("L"); self.btn_l.setObjectName("miniBtn")
         self.expand_btn = QPushButton("F"); self.expand_btn.setObjectName("miniBtn")
         
-        mc_l.addWidget(self.btn_s)
-        mc_l.addWidget(self.btn_m)
-        mc_l.addWidget(self.btn_l)
-        mc_l.addWidget(self.expand_btn)
+        self.mc_l.addWidget(self.btn_s)
+        self.mc_l.addWidget(self.btn_m)
+        self.mc_l.addWidget(self.btn_l)
+        self.mc_l.addWidget(self.expand_btn)
         self.mini_controls_widget.hide()
-        info_l.addWidget(self.mini_controls_widget)
+        self.info_l.addWidget(self.mini_controls_widget)
         
-        self.info_bar.card_layout.addLayout(info_l)
+        self.info_bar.card_layout.addLayout(self.info_l)
         right_l.addWidget(self.info_bar)
 
-        # Settings
-        self.sub_stats_widget = QWidget()
-        sub_l = QHBoxLayout(self.sub_stats_widget)
-        sub_l.setContentsMargins(0, 0, 0, 0)
-        s_card = Card("Settings")
+        # Unified Settings & Controls Card
+        self.sub_stats_widget = Card("Settings & Controls", color="#8b5cf6")
+        panel_layout = QHBoxLayout()
+        panel_layout.setContentsMargins(10, 10, 10, 10)
+        panel_layout.setSpacing(20)
+        
+        # Left Grid: Settings
         s_f = QGridLayout()
+        s_f.setSpacing(8)
         s_f.addWidget(QLabel("Re-entry (s)"), 0, 0)
         self.reentry_spin = QSpinBox()
         self.reentry_spin.setRange(1, 3600)
-        s_f.addWidget(self.reentry_spin, 0, 1)
+        s_f.addWidget(self.reentry_spin, 0, 1, 1, 2)
+        
         self.sound_edit = QLineEdit()
         self.sound_browse = QPushButton("...")
         s_f.addWidget(QLabel("Sound Path"), 1, 0)
         s_f.addWidget(self.sound_edit, 1, 1)
         s_f.addWidget(self.sound_browse, 1, 2)
+        
         self.auto_start_check = QCheckBox("Auto-start")
         self.mini_mode_check = QCheckBox("Mini Mode")
         s_f.addWidget(self.auto_start_check, 2, 0)
-        s_f.addWidget(self.mini_mode_check, 2, 1)
+        s_f.addWidget(self.mini_mode_check, 2, 1, 1, 2)
+        
         self.scale_combo = QComboBox()
         self.scale_combo.addItems(["Large", "Medium", "Small"])
         s_f.addWidget(QLabel("Mini Size"), 3, 0)
-        s_f.addWidget(self.scale_combo, 3, 1)
-        s_card.card_layout.addLayout(s_f)
+        s_f.addWidget(self.scale_combo, 3, 1, 1, 2)
         
+        panel_layout.addLayout(s_f, 2)
+        
+        # Right Side: Action Buttons
         ctrl = QVBoxLayout()
+        ctrl.setSpacing(6)
         self.start_btn = QPushButton("START MONITORING"); self.start_btn.setObjectName("startBtn")
         self.stop_btn = QPushButton("STOP MONITORING"); self.stop_btn.setObjectName("stopBtn"); self.stop_btn.setEnabled(False)
         self.reset_btn = QPushButton("Reset Total Count")
-        self.exit_btn = QPushButton("EXIT APPLICATION"); self.exit_btn.setStyleSheet("color: #cf6679; border-color: #cf6679;")
+        self.exit_btn = QPushButton("EXIT APPLICATION"); self.exit_btn.setStyleSheet("color: #ef4444; border-color: #ef4444;")
         
         ctrl.addWidget(self.start_btn)
         ctrl.addWidget(self.stop_btn)
         ctrl.addWidget(self.reset_btn)
         ctrl.addWidget(self.exit_btn)
-        sub_l.addWidget(s_card, 2)
-        sub_l.addLayout(ctrl, 1)
+        
+        panel_layout.addLayout(ctrl, 1)
+        
+        self.sub_stats_widget.card_layout.addLayout(panel_layout)
         right_l.addWidget(self.sub_stats_widget)
         
         self.dashboard_layout.addWidget(self.right_col_widget, 2)
@@ -318,6 +407,8 @@ class MainWindow(QMainWindow):
         self.sound_browse.clicked.connect(self._on_select_sound)
         self.add_area_btn.clicked.connect(self._on_add_area)
         self.remove_area_btn.clicked.connect(self._on_remove_area)
+        self.area_list.itemDoubleClicked.connect(self._on_edit_area)
+        self.add_current_area_btn.clicked.connect(self._on_add_current_area)
         self.start_btn.clicked.connect(self._on_start)
         self.stop_btn.clicked.connect(self._on_stop)
         self.reset_btn.clicked.connect(self._on_reset_counter)
@@ -364,9 +455,111 @@ class MainWindow(QMainWindow):
             self.update_btn.setEnabled(False)
 
     def _on_update_clicked(self):
-        import webbrowser
-        url = self.update_manager.download_url or f"https://github.com/{self.update_manager.GITHUB_USER}/{self.update_manager.GITHUB_REPO}/releases"
-        webbrowser.open(url)
+        msg = QMessageBox.question(
+            self, 
+            "Update Available", 
+            f"Would you like to download and install version {self.update_manager.latest_version} automatically?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+        if msg == QMessageBox.No:
+            return
+
+        self.update_btn.setText("Downloading...")
+        self.update_btn.setEnabled(False)
+
+        # Run download in a thread to keep UI responsive
+        from PySide6.QtCore import QRunnable, QObject, Signal
+        class DownloadSignals(QObject):
+            progress = Signal(int)
+            finished = Signal(bool, str)
+        
+        class DownloadWorker(QRunnable):
+            def __init__(self, manager):
+                super().__init__()
+                self.manager = manager
+                self.signals = DownloadSignals()
+            def run(self):
+                import tempfile
+                temp_exe = os.path.join(tempfile.gettempdir(), "PoE2Timer_new.exe")
+                # Using a lambda to bridge the callback to a signal
+                success = self.manager.download_file(temp_exe, progress_callback=self.signals.progress.emit)
+                self.signals.finished.emit(success, temp_exe)
+
+        worker = DownloadWorker(self.update_manager)
+        worker.signals.progress.connect(self._on_download_progress)
+        worker.signals.finished.connect(self._on_download_finished)
+        self.thread_pool.start(worker)
+
+    def _on_download_progress(self, percent):
+        self.update_btn.setText(f"Downloading: {percent}%")
+        if percent >= 100:
+            self.update_btn.setText("READY: Restart & Install")
+            self.update_btn.setEnabled(True)
+            self.update_btn.setStyleSheet("background-color: #fbbf24; color: #09090b; font-weight: bold;")
+            # Disconnect previous slot to change behavior
+            try:
+                self.update_btn.clicked.disconnect()
+            except:
+                pass
+            self.update_btn.clicked.connect(self._run_self_replacement)
+
+    def _on_download_finished(self, success, temp_exe):
+        if not success:
+            QMessageBox.critical(self, "Error", "Failed to download the update.")
+            self.update_btn.setText("Retry Update")
+            self.update_btn.setEnabled(True)
+            return
+        
+        self.downloaded_temp_exe = temp_exe
+        # UI already updated in _on_download_progress
+
+    def _run_self_replacement(self):
+        if not hasattr(self, 'downloaded_temp_exe'):
+            return
+
+        msg = QMessageBox.question(
+            self, 
+            "Finish Update", 
+            "Download complete. The application will now restart to apply the update. Continue?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+        if msg == QMessageBox.No:
+            return
+
+        temp_exe = self.downloaded_temp_exe
+        # sys.executable is the most reliable way in PyInstaller to find the EXE path
+        import sys
+        current_exe = sys.executable
+        
+        if not current_exe.lower().endswith(".exe"):
+            QMessageBox.information(self, "Info", f"Update downloaded to {temp_exe}. Automatic replacement only works for the compiled EXE version.")
+            return
+
+        # Create a batch script to swap files
+        # We explicitly clear _MEIPASS in the batch environment to prevent the new EXE 
+        # from attempting to load files/DLLs from the old temporary directory.
+        batch_content = f"""@echo off
+taskkill /f /pid {os.getpid()} >nul 2>&1
+timeout /t 1 /nobreak >nul
+move /y "{temp_exe}" "{current_exe}"
+set _MEIPASS=
+start "" "{current_exe}"
+del "%~f0"
+"""
+        batch_path = os.path.join(os.path.dirname(current_exe), "updater.bat")
+        try:
+            with open(batch_path, "w") as f:
+                f.write(batch_content)
+            
+            # Clear _MEIPASS environment variable for the child process environment as well
+            env = os.environ.copy()
+            env.pop("_MEIPASS", None)
+            
+            import subprocess
+            subprocess.Popen(["cmd.exe", "/c", batch_path], env=env, shell=True)
+            self.close()
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to create update script: {e}")
 
     def _load_settings(self):
         self.game_path_edit.setText(self.config.get("game_path"))
@@ -375,10 +568,35 @@ class MainWindow(QMainWindow):
             self.area_list.addItem(area)
         self.reentry_spin.setValue(self.config.get("reentry_timer_duration"))
         
-        # Default sound path logic
+        # --- Asset Auto-Setup ---
+        assets_dir = os.path.join(os.getcwd(), "assets", "sounds")
+        if not os.path.exists(assets_dir):
+            os.makedirs(assets_dir, exist_ok=True)
+            
+        target_sound = os.path.join(assets_dir, "notify.mp3")
+        
+        # If external sound doesn't exist, try to copy it from internal bundle
+        if not os.path.exists(target_sound):
+            try:
+                import shutil
+                # In PyInstaller bundle, the internal path matches the relative structure
+                internal_sound = resource_path("assets/sounds/notify.mp3")
+                if os.path.exists(internal_sound):
+                    shutil.copy2(internal_sound, target_sound)
+                    self._add_log_entry("INFO", "App", "Default sound extracted to assets folder.")
+                else:
+                    # Fallback for dev environment or if path resolution differs
+                    dev_sound = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "sounds", "notify.mp3")
+                    if os.path.exists(dev_sound):
+                        shutil.copy2(dev_sound, target_sound)
+            except Exception as e:
+                self._add_log_entry("ERROR", "App", f"Failed to extract default sound: {e}")
+        
+        # Load sound from config or fallback to auto-setup target
         sound = self.config.get("sound_file")
-        if not sound:
-            sound = os.path.join(os.getcwd(), "assets", "sounds", "notify.mp3")
+        if not sound or not os.path.exists(sound):
+            sound = target_sound
+            
         self.sound_edit.setText(sound)
         
         self._on_map_completed(count=self.config.get("maps_completed", 0))
@@ -425,12 +643,40 @@ class MainWindow(QMainWindow):
         if ok and name.strip():
             self.area_list.addItem(name.strip())
             self._save_settings()
+            
+    def _on_add_current_area(self):
+        current_area = self.last_area_val.text()
+        if not current_area or current_area == "No Area":
+            return
+            
+        existing = []
+        for i in range(self.area_list.count()):
+            existing.append(self.area_list.item(i).text().lower())
+            
+        if current_area.lower() not in existing:
+            self.area_list.addItem(current_area)
+            self._save_settings()
+            self._add_log_entry("INFO", "App", f"Added current area \"{current_area}\" to tracked list.")
+            self.status_text.setText(f"Added {current_area}")
 
     def _on_remove_area(self):
         item = self.area_list.currentItem()
         if item:
             self.area_list.takeItem(self.area_list.row(item))
             self._save_settings()
+            
+    def _on_edit_area(self, item):
+        from PySide6.QtWidgets import QInputDialog
+        old_text = item.text()
+        new_text, ok = QInputDialog.getText(self, "Edit Area", "Name:", QLineEdit.Normal, old_text)
+        if ok:
+            new_text_stripped = new_text.strip()
+            if new_text_stripped:
+                item.setText(new_text_stripped)
+                self._save_settings()
+            else:
+                self.area_list.takeItem(self.area_list.row(item))
+                self._save_settings()
 
     def _on_reset_counter(self):
         self.config.set("maps_completed", 0)
@@ -454,16 +700,132 @@ class MainWindow(QMainWindow):
         self.log_table.setItem(row, 0, QTableWidgetItem(t))
         li = QTableWidgetItem(level)
         if level == "INFO":
-            li.setForeground(QColor("#00bfa5"))
+            li.setForeground(QColor("#8b5cf6"))
         elif level == "WARN":
-            li.setForeground(QColor("#ff9800"))
+            li.setForeground(QColor("#fbbf24"))
         elif level == "ERROR":
-            li.setForeground(QColor("#cf6679"))
+            li.setForeground(QColor("#ef4444"))
         self.log_table.setItem(row, 1, li)
         self.log_table.setItem(row, 2, QTableWidgetItem(source))
         self.log_table.setItem(row, 3, QTableWidgetItem(message))
         self.log_table.scrollToBottom()
         self.last_update_text.setText(f"Updated: {t}")
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton and self.is_mini:
+            self.drag_pos = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
+            event.accept()
+
+    def mouseMoveEvent(self, event):
+        if event.buttons() == Qt.LeftButton and self.is_mini and hasattr(self, 'drag_pos'):
+            self.move(event.globalPosition().toPoint() - self.drag_pos)
+            event.accept()
+
+    def _apply_quick_scale(self, scale_text):
+        idx = self.scale_combo.findText(scale_text)
+        if idx >= 0:
+            self.scale_combo.setCurrentIndex(idx)
+        self._set_mini_state(True)
+
+    def _on_expand_ui(self):
+        self.mini_mode_check.setChecked(False)
+
+    def _on_mini_mode_toggled(self, checked):
+        self.is_mini = checked
+        flags = self.windowFlags()
+        if checked:
+            flags |= Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint
+        else:
+            flags &= ~Qt.WindowStaysOnTopHint
+            flags &= ~Qt.FramelessWindowHint
+        self.setWindowFlags(flags)
+        self._set_mini_state(checked)
+        self.show()
+
+    def _set_mini_state(self, mini):
+        self.top_container.setVisible(not mini)
+        self.left_col_widget.setVisible(not mini)
+        self.sub_stats_widget.setVisible(not mini)
+        self.status_bar_widget.setVisible(not mini)
+        self.mini_controls_widget.setVisible(mini)
+        self.add_current_area_btn.setVisible(mini)
+        if self.is_debug:
+            self.log_group.setVisible(not mini)
+            
+        scale_map = {"Large": 1.0, "Medium": 0.8, "Small": 0.65}
+        scale = scale_map.get(self.scale_combo.currentText(), 1.0) if mini else 1.0
+        
+        # In mini mode, we force the frame's internal margins to exactly 2 pixels.
+        m_val = 2 if mini else 8
+        self.reentry_card.update_style(m_val)
+        self.map_timer_card.update_style(m_val)
+        self.maps_card.update_style(m_val)
+        
+        self.reentry_card.header_widget.setVisible(not mini)
+        self.map_timer_card.header_widget.setVisible(not mini)
+        self.maps_card.header_widget.setVisible(not mini)
+        
+        if mini:
+            self.reentry_card.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+            self.map_timer_card.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+            self.maps_card.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+            w_val = int(120 * scale)
+            h_val = int(80 * scale)
+            self.reentry_card.setFixedSize(w_val, h_val)
+            self.map_timer_card.setFixedSize(w_val, h_val)
+            self.maps_card.setFixedSize(w_val, h_val)
+        else:
+            self.reentry_card.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            self.map_timer_card.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            self.maps_card.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            self.reentry_card.setMinimumSize(0, 0)
+            self.reentry_card.setMaximumSize(16777215, 16777215)
+            self.map_timer_card.setMinimumSize(0, 0)
+            self.map_timer_card.setMaximumSize(16777215, 16777215)
+            self.maps_card.setMinimumSize(0, 0)
+            self.maps_card.setMaximumSize(16777215, 16777215)
+            
+        self._refresh_displays_style(scale)
+        
+        if mini:
+            if scale < 0.7:
+                self.info_bar.setFixedHeight(30)
+                self.info_bar.header_widget.hide()
+                self.add_current_area_btn.setFixedHeight(18)
+                self.mc_l.setSpacing(2)
+                for i in range(self.mc_l.count()):
+                    w = self.mc_l.itemAt(i).widget()
+                    if w: w.setFixedHeight(18)
+            else:
+                self.info_bar.setFixedHeight(40)
+                self.info_bar.header_widget.hide()
+                self.add_current_area_btn.setFixedHeight(22)
+                self.mc_l.setSpacing(0)
+                for i in range(self.mc_l.count()):
+                    w = self.mc_l.itemAt(i).widget()
+                    if w: w.setFixedHeight(22)
+                
+            self.setMinimumSize(0, 0)
+            QTimer.singleShot(10, self.adjustSize)
+        else:
+            self.info_bar.setFixedHeight(50)
+            self.info_bar.header_widget.show()
+            self.add_current_area_btn.setVisible(False)
+            self.setMinimumSize(1100, 550)
+            self.resize(1100, 550)
+
+    def _refresh_displays_style(self, scale):
+        px = int(72 * scale)
+        mt = int(-0.25 * px)
+        mb = int(-0.20 * px)
+        
+        px_small = int(48 * scale)
+        mt_small = int(-0.25 * px_small)
+        mb_small = int(-0.20 * px_small)
+
+        self.reentry_display.setStyleSheet(f"font-size: {px}px; font-weight: bold; color: {self.current_reentry_color}; background: transparent; padding: 0px; margin-top: {mt}px; margin-bottom: {mb}px; line-height: 1;")
+        self.map_timer_display.setStyleSheet(f"font-size: {px}px; font-weight: bold; color: #fbbf24; background: transparent; padding: 0px; margin-top: {mt}px; margin-bottom: {mb}px; line-height: 1;")
+        self.maps_inline_label.setStyleSheet(f"font-size: {px_small}px; font-weight: bold; color: #fbbf24; background: transparent; padding: 0px; margin-top: {mt_small}px; margin-bottom: {mb_small}px; line-height: 1;")
 
     def _on_start(self):
         log_path = self.client_log_edit.text()
@@ -473,7 +835,7 @@ class MainWindow(QMainWindow):
         self.start_btn.setEnabled(False)
         self.stop_btn.setEnabled(True)
         self.monitoring_status.setText("● Active")
-        self.monitoring_status.setStyleSheet("color: #00bfa5; font-weight: bold;")
+        self.monitoring_status.setStyleSheet("color: #fbbf24; font-weight: bold;")
         self.log_watcher = LogWatcher(log_path, LogParser())
         self.log_watcher.signals.new_event.connect(self._handle_log_event)
         self.thread_pool.start(self.log_watcher)
@@ -486,7 +848,7 @@ class MainWindow(QMainWindow):
         self.start_btn.setEnabled(True)
         self.stop_btn.setEnabled(False)
         self.monitoring_status.setText("● Inactive")
-        self.monitoring_status.setStyleSheet("color: #cf6679; font-weight: bold;")
+        self.monitoring_status.setStyleSheet("color: #ef4444; font-weight: bold;")
         self._add_log_entry("INFO", "App", "Stopped.")
 
     @Slot(dict)
@@ -506,11 +868,10 @@ class MainWindow(QMainWindow):
         total = self.reentry_spin.value()
         ratio = seconds / total if total > 0 else 0
         
-        # Color gradient: White -> Green -> Yellow -> Red
-        white = (255, 255, 255)
-        green = (0, 191, 165)
-        yellow = (255, 235, 59)
-        red = (207, 102, 121)
+        # Streamer gradient: Purple -> Gold -> Red
+        purple = (139, 92, 246)
+        gold = (251, 191, 36)
+        red = (239, 68, 68)
 
         def interpolate(c1, c2, factor):
             return (
@@ -519,15 +880,12 @@ class MainWindow(QMainWindow):
                 int(c1[2] + (c2[2] - c1[2]) * factor)
             )
 
-        if ratio >= 0.66:
-            f = (ratio - 0.66) / 0.34
-            r, g, b = interpolate(green, white, f)
-        elif ratio >= 0.33:
-            f = (ratio - 0.33) / 0.33
-            r, g, b = interpolate(yellow, green, f)
+        if ratio >= 0.5:
+            f = (ratio - 0.5) / 0.5
+            r, g, b = interpolate(gold, purple, f)
         else:
-            f = ratio / 0.33
-            r, g, b = interpolate(red, yellow, f)
+            f = ratio / 0.5
+            r, g, b = interpolate(red, gold, f)
             
         self.base_reentry_color = f"rgb({r}, {g}, {b})"
         

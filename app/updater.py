@@ -46,3 +46,32 @@ class UpdateManager:
             return l_parts > c_parts
         except:
             return latest != current
+
+    def download_file(self, target_path, progress_callback=None):
+        """
+        Downloads the binary from download_url to target_path with progress feedback.
+        progress_callback: function(int) - receives percentage (0-100)
+        """
+        if not self.download_url:
+            return False
+        try:
+            req = urllib.request.Request(self.download_url, headers={'User-Agent': 'PoE2-Timer-App'})
+            with urllib.request.urlopen(req) as response:
+                total_size = int(response.info().get('Content-Length', 0))
+                downloaded = 0
+                block_size = 8192
+                
+                with open(target_path, 'wb') as f:
+                    while True:
+                        buffer = response.read(block_size)
+                        if not buffer:
+                            break
+                        downloaded += len(buffer)
+                        f.write(buffer)
+                        if progress_callback and total_size > 0:
+                            percent = int((downloaded / total_size) * 100)
+                            progress_callback(percent)
+            return True
+        except Exception as e:
+            logging.error(f"Failed to download update: {e}")
+            return False
