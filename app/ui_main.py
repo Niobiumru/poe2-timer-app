@@ -839,12 +839,18 @@ del "%~f0"
         
         # In mini mode, we force the frame's internal margins to exactly 2 pixels.
         m_val = 2 if mini else 8
-        has_border = not (mini and self.scale_combo.currentText() == "Small")
+        has_border = True
         
         self.reentry_card.update_style(m_val, has_border)
         self.map_timer_card.update_style(m_val, has_border)
         self.maps_card.update_style(m_val, has_border)
         self.info_bar.update_style(m_val, has_border)
+        
+        # Remove the outer window frame/margin in mini mode, restore it in full mode
+        if mini:
+            self.main_layout.setContentsMargins(0, 0, 0, 0)
+        else:
+            self.main_layout.setContentsMargins(12, 12, 12, 12)
         
         self.reentry_card.header_widget.setVisible(not mini)
         self.map_timer_card.header_widget.setVisible(not mini)
@@ -865,15 +871,15 @@ del "%~f0"
             fm = QFontMetrics(font)
             text_w = fm.horizontalAdvance("00:00")
             w_padding = int(36 * scale)
-            card_w = text_w + (w_padding - 4 if not has_border else w_padding)
-            card_h = px + (6 if not has_border else 10)
+            card_w = text_w + w_padding # 2px borders + 2px margins + font side bearings + 2px clearance
+            card_h = px + 10            # Height based on font size + padding
             
             font_small = QFont()
             font_small.setPixelSize(px_small)
             font_small.setBold(True)
             fm_small = QFontMetrics(font_small)
             text_w_small = fm_small.horizontalAdvance("000")
-            card_w_small = text_w_small + (w_padding - 4 if not has_border else w_padding)
+            card_w_small = text_w_small + w_padding
             
             self.reentry_card.setFixedSize(card_w, card_h)
             self.map_timer_card.setFixedSize(card_w, card_h)
