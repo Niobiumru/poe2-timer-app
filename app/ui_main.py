@@ -844,15 +844,15 @@ del "%~f0"
             font.setBold(True)
             fm = QFontMetrics(font)
             text_w = fm.horizontalAdvance("00:00")
-            card_w = text_w + 10 # 2px borders + 2px margins + 2px padding on each side
-            card_h = int(px * 0.75) + 6 # Height based on font size + padding
+            card_w = text_w + 18 # 2px borders + 2px margins + font side bearings + 2px clearance
+            card_h = px + 10     # Height based on font size + padding
             
             font_small = QFont()
             font_small.setPixelSize(px_small)
             font_small.setBold(True)
             fm_small = QFontMetrics(font_small)
             text_w_small = fm_small.horizontalAdvance("000")
-            card_w_small = text_w_small + 10
+            card_w_small = text_w_small + 18
             
             self.reentry_card.setFixedSize(card_w, card_h)
             self.map_timer_card.setFixedSize(card_w, card_h)
