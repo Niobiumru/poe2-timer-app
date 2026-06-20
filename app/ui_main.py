@@ -164,23 +164,39 @@ class Card(QFrame):
         self.update_style(6)
 
     def update_style(self, margins, has_border=True):
-        border_css = "border: 2px solid #27272a;" if has_border else "border: none;"
-        self.setStyleSheet(f"""
-            QFrame#mainCard {{ 
-                background-color: #18181b; 
-                {border_css}
-                border-radius: 6px; 
-            }}
-            QLabel#cardTitle {{ 
-                color: #fbbf24; 
-                font-weight: 900; 
-                font-size: 11px; 
-                text-transform: uppercase; 
-                border: none; 
-                background: transparent; 
-                letter-spacing: 2px;
-            }}
-        """)
+        if not has_border:
+            self.setStyleSheet(f"""
+                QFrame#mainCard {{ 
+                    background-color: transparent; 
+                    border: none; 
+                }}
+                QLabel#cardTitle {{ 
+                    color: #fbbf24; 
+                    font-weight: 900; 
+                    font-size: 11px; 
+                    text-transform: uppercase; 
+                    border: none; 
+                    background: transparent; 
+                    letter-spacing: 2px;
+                }}
+            """)
+        else:
+            self.setStyleSheet(f"""
+                QFrame#mainCard {{ 
+                    background-color: #18181b; 
+                    border: 2px solid #27272a; 
+                    border-radius: 6px; 
+                }}
+                QLabel#cardTitle {{ 
+                    color: #fbbf24; 
+                    font-weight: 900; 
+                    font-size: 11px; 
+                    text-transform: uppercase; 
+                    border: none; 
+                    background: transparent; 
+                    letter-spacing: 2px;
+                }}
+            """)
         self.card_layout.setContentsMargins(margins, margins, margins, margins)
 
 def resource_path(relative_path):
