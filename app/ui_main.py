@@ -926,6 +926,8 @@ del "%~f0"
             self.setMinimumSize(0, 0)
             QTimer.singleShot(10, self._resize_to_mini)
         else:
+            self.setMinimumSize(0, 0)
+            self.setMaximumSize(16777215, 16777215)
             self.info_bar.setFixedHeight(50)
             self.info_bar.header_widget.show()
             self.add_current_area_btn.setVisible(False)
@@ -934,8 +936,10 @@ del "%~f0"
 
     def _resize_to_mini(self):
         if self.is_mini:
+            self.setMinimumSize(0, 0)
+            self.setMaximumSize(16777215, 16777215)
             self.adjustSize()
-            self.resize(self.minimumSizeHint())
+            self.setFixedSize(self.minimumSizeHint())
 
     def _refresh_displays_style(self, scale):
         px = int(72 * scale)
