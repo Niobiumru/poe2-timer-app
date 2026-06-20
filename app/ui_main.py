@@ -65,6 +65,7 @@ QPushButton#stopBtn {
     font-size: 16px; 
     font-weight: bold; 
     padding: 0px; 
+    padding-bottom: 5px;
 }
 QPushButton#stopBtn:hover { 
     background-color: #ef4444; 
