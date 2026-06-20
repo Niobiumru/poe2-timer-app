@@ -619,13 +619,14 @@ class MainWindow(QMainWindow):
             return
 
         # Create a batch script to swap files
-        # We explicitly clear _MEIPASS in the batch environment to prevent the new EXE 
+        # We explicitly clear _MEIPASS and _MEIPASS2 in the batch environment to prevent the new EXE 
         # from attempting to load files/DLLs from the old temporary directory.
         batch_content = f"""@echo off
 taskkill /f /pid {os.getpid()} >nul 2>&1
 timeout /t 1 /nobreak >nul
 move /y "{temp_exe}" "{current_exe}"
 set _MEIPASS=
+set _MEIPASS2=
 start "" "{current_exe}"
 del "%~f0"
 """
@@ -634,9 +635,10 @@ del "%~f0"
             with open(batch_path, "w") as f:
                 f.write(batch_content)
             
-            # Clear _MEIPASS environment variable for the child process environment as well
+            # Clear _MEIPASS and _MEIPASS2 environment variables for the child process environment as well
             env = os.environ.copy()
             env.pop("_MEIPASS", None)
+            env.pop("_MEIPASS2", None)
             
             import subprocess
             subprocess.Popen(["cmd.exe", "/c", batch_path], env=env, shell=True)
