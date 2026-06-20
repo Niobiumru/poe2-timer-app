@@ -849,8 +849,10 @@ del "%~f0"
         # Remove the outer window frame/margin in mini mode, restore it in full mode
         if mini:
             self.main_layout.setContentsMargins(0, 0, 0, 0)
+            self.main_layout.setSpacing(0)
         else:
             self.main_layout.setContentsMargins(12, 12, 12, 12)
+            self.main_layout.setSpacing(8)
         
         self.reentry_card.header_widget.setVisible(not mini)
         self.map_timer_card.header_widget.setVisible(not mini)
@@ -919,13 +921,18 @@ del "%~f0"
                     if w: w.setFixedHeight(22)
                 
             self.setMinimumSize(0, 0)
-            QTimer.singleShot(10, self.adjustSize)
+            QTimer.singleShot(10, self._resize_to_mini)
         else:
             self.info_bar.setFixedHeight(50)
             self.info_bar.header_widget.show()
             self.add_current_area_btn.setVisible(False)
             self.setMinimumSize(855, 500)
             self.resize(855, 500)
+
+    def _resize_to_mini(self):
+        if self.is_mini:
+            self.adjustSize()
+            self.resize(self.minimumSizeHint())
 
     def _refresh_displays_style(self, scale):
         px = int(72 * scale)
