@@ -14,6 +14,7 @@ DEFAULT_CONFIG = {
     "mini_mode": False,            
     "mini_scale": 1.0,             
     "sound_file": "",
+    "sound_volume": 100,
     "ui_settings": {}
 }
 

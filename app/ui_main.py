@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                              QLabel, QPushButton, QLineEdit, QListWidget, 
                              QFileDialog, QSpinBox, QMessageBox, QGroupBox,
                              QFrame, QTableWidget, QTableWidgetItem, QHeaderView,
-                             QGridLayout, QCheckBox, QComboBox, QSizePolicy)
+                             QGridLayout, QCheckBox, QComboBox, QSizePolicy, QSlider)
 from PySide6.QtCore import Qt, QThreadPool, Slot, QSize, QTimer
 from PySide6.QtGui import QColor, QPalette, QFont, QIcon, QFontMetrics
 
@@ -286,66 +286,14 @@ class MainWindow(QMainWindow):
         self.dashboard_layout = QHBoxLayout(self.dashboard_widget)
         self.dashboard_layout.setContentsMargins(0, 0, 0, 0)
         self.dashboard_layout.setSpacing(10)
-
         # Left Column (Tracked Areas)
         self.left_col_widget = QWidget()
         self.left_col_widget.setFixedWidth(220)
-        left_l = QVBoxLayout(self.left_col_widget)
-        left_l.setContentsMargins(0, 0, 0, 0)
-        area_group = Card("Tracked Areas", color="#8b5cf6")
-        self.area_list = QListWidget()
-        area_group.card_layout.addWidget(self.area_list)
-        b_l = QHBoxLayout()
-        b_l.setSpacing(6)
-        self.add_area_btn = QPushButton("+")
-        self.add_area_btn.setStyleSheet("font-size: 20px; font-weight: bold; padding: 2px;")
-        self.add_area_btn.setToolTip("Add Area")
-        self.remove_area_btn = QPushButton("-")
-        self.remove_area_btn.setToolTip("Remove Selected Area")
-        self.remove_area_btn.setStyleSheet("color: #ef4444; border-color: #ef4444; font-size: 20px; font-weight: bold; padding: 2px;")
-        b_l.addWidget(self.add_area_btn)
-        b_l.addWidget(self.remove_area_btn)
-        area_group.card_layout.addLayout(b_l)
-        left_l.addWidget(area_group)
-        self.dashboard_layout.addWidget(self.left_col_widget, 0)
-
-        # Right Column (Timers & Settings)
-        self.right_col_widget = QWidget()
-        right_l = QVBoxLayout(self.right_col_widget)
-        right_l.setContentsMargins(0, 0, 0, 0)
-        right_l.setSpacing(10)
+        self.left_l = QVBoxLayout(self.left_col_widget)
+        self.left_l.setContentsMargins(0, 0, 0, 0)
+        self.left_l.setSpacing(10)
         
-        # Timers layout (horizontal, stretch to fill)
-        timers_row = QHBoxLayout()
-        timers_row.setSpacing(8)
-        
-        self.reentry_card = Card("Re-entry Timer", color="#8b5cf6")
-        self.reentry_display = QLabel("00:00")
-        self.reentry_display.setAlignment(Qt.AlignCenter)
-        self.reentry_display.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.reentry_display.setStyleSheet("font-size: 56px; font-weight: bold; color: #8b5cf6; background: transparent; padding: 0; margin: 0; line-height: 1;")
-        self.reentry_card.card_layout.addWidget(self.reentry_display, 0, Qt.AlignCenter)
-        
-        self.map_timer_card = Card("Map Timer", color="#fbbf24")
-        self.map_timer_display = QLabel("00:00")
-        self.map_timer_display.setAlignment(Qt.AlignCenter)
-        self.map_timer_display.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.map_timer_display.setStyleSheet("font-size: 56px; font-weight: bold; color: #fbbf24; background: transparent; padding: 0; margin: 0; line-height: 1;")
-        self.map_timer_card.card_layout.addWidget(self.map_timer_display, 0, Qt.AlignCenter)
-        
-        self.maps_card = Card("Maps", color="#fbbf24")
-        self.maps_inline_label.setAlignment(Qt.AlignCenter)
-        self.maps_inline_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.maps_inline_label.setStyleSheet("font-size: 38px; font-weight: bold; color: #fbbf24; background: transparent; padding: 0; margin: 0; line-height: 1;")
-        self.maps_card.card_layout.addWidget(self.maps_inline_label, 0, Qt.AlignCenter)
-        
-        timers_row.addWidget(self.reentry_card)
-        timers_row.addWidget(self.map_timer_card)
-        timers_row.addWidget(self.maps_card)
-        timers_row.addStretch()
-        right_l.addLayout(timers_row)
-
-        # Session Stats Bar
+        # Session Stats Bar (originally in right column, now at top of left column in full mode)
         self.info_bar = Card("Session Stats", color="#8b5cf6")
         self.info_bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         self.info_bar.setFixedHeight(50)
@@ -386,33 +334,84 @@ class MainWindow(QMainWindow):
         self.info_l.addWidget(self.mini_controls_widget)
         
         self.info_bar.card_layout.addLayout(self.info_l)
-        right_l.addWidget(self.info_bar)
+        self.left_l.addWidget(self.info_bar)
+        
+        area_group = Card("Tracked Areas", color="#8b5cf6")
+        self.area_list = QListWidget()
+        area_group.card_layout.addWidget(self.area_list)
+        b_l = QHBoxLayout()
+        b_l.setSpacing(6)
+        self.add_area_btn = QPushButton("+")
+        self.add_area_btn.setStyleSheet("font-size: 20px; font-weight: bold; padding: 2px;")
+        self.add_area_btn.setToolTip("Add Area")
+        self.remove_area_btn = QPushButton("-")
+        self.remove_area_btn.setToolTip("Remove Selected Area")
+        self.remove_area_btn.setStyleSheet("color: #ef4444; border-color: #ef4444; font-size: 20px; font-weight: bold; padding: 2px;")
+        b_l.addWidget(self.add_area_btn)
+        b_l.addWidget(self.remove_area_btn)
+        area_group.card_layout.addLayout(b_l)
+        self.left_l.addWidget(area_group)
+        self.dashboard_layout.addWidget(self.left_col_widget, 0)
+
+        # Right Column (Timers & Settings)
+        self.right_col_widget = QWidget()
+        self.right_l = QVBoxLayout(self.right_col_widget)
+        self.right_l.setContentsMargins(0, 0, 0, 0)
+        self.right_l.setSpacing(10)
+        
+        # Timers layout (horizontal, stretch to fill)
+        timers_row = QHBoxLayout()
+        timers_row.setSpacing(8)
+        
+        self.reentry_card = Card("Re-entry Timer", color="#8b5cf6")
+        self.reentry_display = QLabel("00:00")
+        self.reentry_display.setAlignment(Qt.AlignCenter)
+        self.reentry_display.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.reentry_display.setStyleSheet("font-size: 56px; font-weight: bold; color: #8b5cf6; background: transparent; padding: 0; margin: 0; line-height: 1;")
+        self.reentry_card.card_layout.addWidget(self.reentry_display, 0, Qt.AlignCenter)
+        
+        self.map_timer_card = Card("Map Timer", color="#fbbf24")
+        self.map_timer_display = QLabel("00:00")
+        self.map_timer_display.setAlignment(Qt.AlignCenter)
+        self.map_timer_display.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.map_timer_display.setStyleSheet("font-size: 56px; font-weight: bold; color: #fbbf24; background: transparent; padding: 0; margin: 0; line-height: 1;")
+        self.map_timer_card.card_layout.addWidget(self.map_timer_display, 0, Qt.AlignCenter)
+        
+        self.maps_card = Card("Maps", color="#fbbf24")
+        self.maps_inline_label.setAlignment(Qt.AlignCenter)
+        self.maps_inline_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.maps_inline_label.setStyleSheet("font-size: 38px; font-weight: bold; color: #fbbf24; background: transparent; padding: 0; margin: 0; line-height: 1;")
+        self.maps_card.card_layout.addWidget(self.maps_inline_label, 0, Qt.AlignCenter)
+        
+        timers_row.addWidget(self.reentry_card)
+        timers_row.addWidget(self.map_timer_card)
+        timers_row.addWidget(self.maps_card)
+        timers_row.addStretch()
+        self.right_l.addLayout(timers_row)
 
         # Unified Settings & Controls Card
         self.sub_stats_widget = Card("Settings & Controls", color="#8b5cf6")
         
-        # Grid layout for settings and control buttons to achieve perfect symmetry
+        # Horizontal layout inside Settings Card: left side is grid inputs, right side is vertical buttons
+        self.settings_card_layout = QHBoxLayout()
+        self.settings_card_layout.setContentsMargins(10, 10, 10, 10)
+        self.settings_card_layout.setSpacing(15)
+        
+        # Grid layout for inputs to maintain alignment
         s_f = QGridLayout()
-        s_f.setContentsMargins(10, 10, 10, 10)
-        s_f.setSpacing(8)
+        s_f.setContentsMargins(0, 0, 0, 0)
+        s_f.setSpacing(10)
         s_f.setHorizontalSpacing(15)
         
-        s_f.setColumnStretch(0, 0)
-        s_f.setColumnStretch(1, 1)
-        s_f.setColumnStretch(2, 0)
-        s_f.setColumnStretch(3, 0)
+        s_f.setColumnStretch(0, 0) # Labels
+        s_f.setColumnStretch(1, 1) # Inputs
+        s_f.setColumnStretch(2, 0) # Buttons (Browse, Play)
         
         # Row 0: Re-entry
         s_f.addWidget(QLabel("Re-entry (s)"), 0, 0)
         self.reentry_spin = QSpinBox()
         self.reentry_spin.setRange(1, 3600)
         s_f.addWidget(self.reentry_spin, 0, 1, 1, 2)
-        
-        self.start_btn = QPushButton("▶")
-        self.start_btn.setObjectName("startBtn")
-        self.start_btn.setFixedSize(32, 32)
-        self.start_btn.setToolTip("Start Monitoring")
-        s_f.addWidget(self.start_btn, 0, 3)
         
         # Row 1: Sound Path
         self.sound_edit = QLineEdit()
@@ -423,39 +422,107 @@ class MainWindow(QMainWindow):
         s_f.addWidget(self.sound_edit, 1, 1)
         s_f.addWidget(self.sound_browse, 1, 2)
         
+        # Row 2: Volume & Preview
+        self.volume_label_title = QLabel("Volume")
+        self.volume_slider = QSlider(Qt.Horizontal)
+        self.volume_slider.setRange(0, 100)
+        self.volume_slider.setValue(100)
+        
+        # Premium styling for QSlider to match the purple / dark grey theme
+        self.volume_slider.setStyleSheet("""
+            QSlider::groove:horizontal {
+                border: 1px solid #27272a;
+                height: 6px;
+                background: #18181b;
+                border-radius: 3px;
+            }
+            QSlider::sub-page:horizontal {
+                background: #8b5cf6;
+                border-radius: 3px;
+            }
+            QSlider::handle:horizontal {
+                background: #8b5cf6;
+                border: 1px solid #8b5cf6;
+                width: 12px;
+                margin-top: -3px;
+                margin-bottom: -3px;
+                border-radius: 6px;
+            }
+            QSlider::handle:horizontal:hover {
+                background: #ffffff;
+                border: 1px solid #8b5cf6;
+            }
+        """)
+        
+        self.volume_val_label = QLabel("100%")
+        self.volume_val_label.setFixedWidth(32)
+        self.volume_val_label.setStyleSheet("color: #fafafa; font-size: 11px;")
+        
+        vol_layout = QHBoxLayout()
+        vol_layout.setContentsMargins(0, 0, 0, 0)
+        vol_layout.setSpacing(6)
+        vol_layout.addWidget(self.volume_slider)
+        vol_layout.addWidget(self.volume_val_label)
+        
+        self.sound_play_btn = QPushButton("🔊")
+        self.sound_play_btn.setFixedSize(32, 32)
+        self.sound_play_btn.setStyleSheet("padding: 0px; font-size: 14px; font-weight: bold;")
+        self.sound_play_btn.setToolTip("Test Sound")
+        
+        s_f.addWidget(self.volume_label_title, 2, 0)
+        s_f.addLayout(vol_layout, 2, 1)
+        s_f.addWidget(self.sound_play_btn, 2, 2)
+        
+        # Row 3: Checkboxes
+        self.auto_start_check = QCheckBox("Auto-start")
+        self.mini_mode_check = QCheckBox("Mini Mode")
+        s_f.addWidget(self.auto_start_check, 3, 0)
+        s_f.addWidget(self.mini_mode_check, 3, 1, 1, 2)
+        
+        # Row 4: Mini Size
+        self.scale_combo = QComboBox()
+        self.scale_combo.addItems(["Large", "Medium", "Small"])
+        s_f.addWidget(QLabel("Mini Size"), 4, 0)
+        s_f.addWidget(self.scale_combo, 4, 1, 1, 2)
+        
+        # Vertical button layout for main controls (right side of the settings card)
+        btn_vbox = QVBoxLayout()
+        btn_vbox.setSpacing(8)
+        btn_vbox.setContentsMargins(0, 0, 0, 0)
+        
+        self.start_btn = QPushButton("▶")
+        self.start_btn.setObjectName("startBtn")
+        self.start_btn.setFixedSize(32, 32)
+        self.start_btn.setToolTip("Start Monitoring")
+        
         self.stop_btn = QPushButton("■")
         self.stop_btn.setObjectName("stopBtn")
         self.stop_btn.setEnabled(False)
         self.stop_btn.setFixedSize(32, 32)
         self.stop_btn.setToolTip("Stop Monitoring")
-        s_f.addWidget(self.stop_btn, 1, 3)
-        
-        # Row 2: Checkboxes
-        self.auto_start_check = QCheckBox("Auto-start")
-        self.mini_mode_check = QCheckBox("Mini Mode")
-        s_f.addWidget(self.auto_start_check, 2, 0)
-        s_f.addWidget(self.mini_mode_check, 2, 1, 1, 2)
         
         self.reset_btn = QPushButton("↻")
         self.reset_btn.setObjectName("resetBtn")
         self.reset_btn.setFixedSize(32, 32)
         self.reset_btn.setToolTip("Reset Total Count")
-        s_f.addWidget(self.reset_btn, 2, 3)
-        
-        # Row 3: Mini Size
-        self.scale_combo = QComboBox()
-        self.scale_combo.addItems(["Large", "Medium", "Small"])
-        s_f.addWidget(QLabel("Mini Size"), 3, 0)
-        s_f.addWidget(self.scale_combo, 3, 1, 1, 2)
         
         self.exit_btn = QPushButton("✖")
         self.exit_btn.setObjectName("exitBtn")
         self.exit_btn.setFixedSize(32, 32)
         self.exit_btn.setToolTip("Exit Application")
-        s_f.addWidget(self.exit_btn, 3, 3)
         
-        self.sub_stats_widget.card_layout.addLayout(s_f)
-        right_l.addWidget(self.sub_stats_widget)
+        btn_vbox.addWidget(self.start_btn)
+        btn_vbox.addWidget(self.stop_btn)
+        btn_vbox.addStretch() # Push lower buttons to bottom
+        btn_vbox.addWidget(self.reset_btn)
+        btn_vbox.addWidget(self.exit_btn)
+        
+        # Add layouts to settings card layout
+        self.settings_card_layout.addLayout(s_f, 1)
+        self.settings_card_layout.addLayout(btn_vbox, 0)
+        
+        self.sub_stats_widget.card_layout.addLayout(self.settings_card_layout)
+        self.right_l.addWidget(self.sub_stats_widget)
         
         self.dashboard_layout.addWidget(self.right_col_widget, 2)
         self.main_layout.addWidget(self.dashboard_widget)
@@ -497,6 +564,9 @@ class MainWindow(QMainWindow):
         self.reset_btn.clicked.connect(self._on_reset_counter)
         self.exit_btn.clicked.connect(self.close)
         self.update_btn.clicked.connect(self._on_update_clicked)
+        self.sound_play_btn.clicked.connect(self._on_play_sound)
+        self.volume_slider.valueChanged.connect(self._on_volume_changed)
+        self.volume_slider.sliderReleased.connect(self._save_settings)
         
         self.btn_s.clicked.connect(lambda: self._apply_quick_scale("Small"))
         self.btn_m.clicked.connect(lambda: self._apply_quick_scale("Medium"))
@@ -684,6 +754,12 @@ del "%~f0"
             
         self.sound_edit.setText(sound)
         
+        # Load sound volume
+        vol = self.config.get("sound_volume", 100)
+        self.volume_slider.setValue(vol)
+        self.volume_val_label.setText(f"{vol}%")
+        self.sound_manager.set_volume(vol / 100.0)
+        
         self._on_map_completed(count=self.config.get("maps_completed", 0))
         self.auto_start_check.setChecked(self.config.get("auto_start", False))
         self.mini_mode_check.setChecked(self.config.get("mini_mode", False))
@@ -701,6 +777,7 @@ del "%~f0"
         self.config.set("tracked_areas", areas)
         self.config.set("reentry_timer_duration", self.reentry_spin.value())
         self.config.set("sound_file", self.sound_edit.text())
+        self.config.set("sound_volume", self.volume_slider.value())
         self.config.set("auto_start", self.auto_start_check.isChecked())
         self.config.set("mini_mode", self.mini_mode_check.isChecked())
         self.config.set("mini_scale_text", self.scale_combo.currentText())
@@ -715,6 +792,19 @@ del "%~f0"
     def _update_log_path_display(self, path):
         if path:
             self.client_log_edit.setText(os.path.join(path, "logs", "Client.txt"))
+
+    def _on_play_sound(self):
+        sound_path = self.sound_edit.text()
+        if sound_path and os.path.exists(sound_path):
+            self.sound_manager.play_sound(sound_path)
+            self._add_log_entry("INFO", "App", f"Playing sound preview: {os.path.basename(sound_path)}")
+        else:
+            self._add_log_entry("WARNING", "App", "Sound file path is invalid or empty. Cannot preview.")
+            QMessageBox.warning(self, "Warning", "Sound file path is invalid or empty.")
+
+    def _on_volume_changed(self, value):
+        self.volume_val_label.setText(f"{value}%")
+        self.sound_manager.set_volume(value / 100.0)
 
     def _on_select_sound(self):
         file, _ = QFileDialog.getOpenFileName(self, "Select Sound", "", "Audio Files (*.wav *.mp3)")
@@ -828,6 +918,11 @@ del "%~f0"
         self.show()
 
     def _set_mini_state(self, mini):
+        if mini:
+            self.right_l.addWidget(self.info_bar)
+        else:
+            self.left_l.insertWidget(0, self.info_bar)
+            
         self.top_container.setVisible(not mini)
         self.left_col_widget.setVisible(not mini)
         self.sub_stats_widget.setVisible(not mini)

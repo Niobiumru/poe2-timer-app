@@ -19,5 +19,11 @@ class SoundManager(QObject):
             # For now, if no path, we do nothing or could play a default resource
             pass
 
+    def set_volume(self, volume: float):
+        self._audio_output.setVolume(max(0.0, min(1.0, volume)))
+
+    def get_volume(self) -> float:
+        return self._audio_output.volume()
+
     def stop(self):
         self._player.stop()
