@@ -697,7 +697,7 @@ timeout /t 1 /nobreak >nul
 move /y "{temp_exe}" "{current_exe}"
 set _MEIPASS=
 set _MEIPASS2=
-start "" "{current_exe}"
+"{current_exe}"
 del "%~f0"
 """
         batch_path = os.path.join(os.path.dirname(current_exe), "updater.bat")
